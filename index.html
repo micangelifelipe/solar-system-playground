@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Solar 3D</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <header id="hud-top" class="glass">
+    <h1>Sistema Solar 3D</h1>
+    <div id="date">—</div>
+    <div id="speed-label" class="muted">—</div>
+  </header>
+
+  <aside id="panel" class="glass">
+    <div class="tabs" role="tablist">
+      <button data-tab="view" class="active">Vista</button>
+      <button data-tab="lab">☄ Impactos</button>
+    </div>
+    <label class="slider">
+      <span>Velocidad</span>
+      <input type="range" id="speed" min="0" max="100" value="45" />
+    </label>
+    <div class="row">
+      <button id="pause">⏸ Pausa</button>
+      <button id="today">Hoy</button>
+    </div>
+
+    <div id="tab-lab" class="tab" hidden>
+      <div class="seg" id="lab-type">
+        <button data-type="meteor" class="active">Meteoro</button>
+        <button data-type="asteroid">Asteroide</button>
+        <button data-type="comet">Cometa</button>
+        <button data-type="bh">Agujero negro</button>
+        <button data-type="sn">☀ Supernova</button>
+        <button data-type="evo">🌅 Evolución del Sol</button>
+      </div>
+      <label class="field"><span>Escenario</span>
+        <select id="lab-preset"><option value="">Personalizado</option></select>
+      </label>
+      <label class="field"><span>Objetivo</span><select id="lab-target"></select></label>
+      <div class="slider">
+        <div class="slider-head"><span id="lab-size-label">Diámetro</span><output id="lab-size-out"></output></div>
+        <input type="range" id="lab-size" min="0" max="1000" />
+      </div>
+      <div class="slider">
+        <div class="slider-head"><span id="lab-speed-label">Velocidad de impacto</span><output id="lab-speed-out"></output></div>
+        <input type="range" id="lab-speed" min="0" max="1000" />
+      </div>
+      <div class="slider" id="lab-angle-row">
+        <div class="slider-head"><span>Ángulo de entrada</span><output id="lab-angle-out"></output></div>
+        <input type="range" id="lab-angle" min="10" max="90" value="45" />
+      </div>
+      <div class="slider" id="lab-frags-row">
+        <div class="slider-head"><span>Fragmentos</span><output id="lab-frags-out"></output></div>
+        <input type="range" id="lab-frags" min="1" max="8" value="1" />
+      </div>
+      <div id="lab-estimate" class="estimate"></div>
+      <button id="lab-launch" class="primary wide">🚀 Lanzar</button>
+      <button id="lab-reset" class="wide">↺ Restablecer sistema</button>
+    </div>
+
+    <div id="tab-view" class="tab">
+    <div class="checks">
+      <label><input type="checkbox" id="opt-orbits" checked /> Órbitas</label>
+      <label><input type="checkbox" id="opt-labels" checked /> Nombres</label>
+      <label><input type="checkbox" id="opt-belt" checked /> Cinturón de asteroides</label>
+      <label><input type="checkbox" id="opt-trojans" checked /> Troyanos de Júpiter</label>
+      <label><input type="checkbox" id="opt-kuiper" checked /> Cinturón de Kuiper</label>
+      <label><input type="checkbox" id="opt-dwarfs" checked /> Planetas enanos</label>
+      <label><input type="checkbox" id="opt-comets" checked /> Cometas</label>
+      <label><input type="checkbox" id="opt-stars" checked /> Estrellas</label>
+      <label><input type="checkbox" id="opt-rotate" /> Rotación automática</label>
+    </div>
+    <select id="others" class="wide" aria-label="Ir a planeta enano o cometa">
+      <option value="">Ir a planeta enano / cometa…</option>
+    </select>
+    <button id="reset" class="wide">Vista general</button>
+    </div>
+  </aside>
+
+  <section id="log" class="glass" hidden>
+    <div class="log-head">
+      <h3>Evolución</h3>
+      <button id="log-close" aria-label="Ocultar">×</button>
+    </div>
+    <ol id="log-list"></ol>
+  </section>
+
+  <section id="info" class="glass" hidden>
+    <button id="info-close" aria-label="Cerrar">×</button>
+    <h2 id="info-name"></h2>
+    <p id="info-desc"></p>
+    <dl id="info-facts"></dl>
+  </section>
+
+  <nav id="planet-bar" class="glass"></nav>
+
+  <div id="help" class="muted">
+    Arrastrar: rotar · Rueda / pellizcar: zoom · Clic derecho o Shift+arrastrar: desplazar ·
+    Clic en un cuerpo: seguirlo · Espacio: pausa · Esc: vista general
+  </div>
+
+  <script src="main.js"></script>
+  <script src="impacts.js"></script>
+</body>
+</html>
