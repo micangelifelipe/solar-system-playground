@@ -1,7 +1,7 @@
 'use strict';
 
 /* =========================================================================
- * Sistema Solar 3D — JavaScript puro + Canvas 2D (sin librerías).
+ * Sistema Solar LAB — JavaScript puro + Canvas 2D (sin librerías).
  * Proyección en perspectiva propia, iluminación por fases, anillos,
  * lunas, cinturón de asteroides, troyanos de Júpiter y cinturón de Kuiper.
  * ========================================================================= */
@@ -1086,7 +1086,7 @@ function drawBin(bin) {
 
 /* ------------------------------ Etiquetas ------------------------------ */
 function drawLabels(sorted) {
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = '12px Consolas, "Cascadia Mono", Menlo, "Courier New", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   // Prioridad: cuerpo seguido, Sol, planetas y luego lunas; se omiten etiquetas que se solapan.
@@ -1402,5 +1402,28 @@ if (initial) {
   cam.blend = 1;
   cam.dist = cam.tdist;
 }
+// Bienvenida: se muestra al abrir la app, salvo que se haya pedido no volver a
+// mostrarla o que se entre con un enlace directo (#Saturno, #escenario=N).
+(function welcome() {
+  const box = $('welcome');
+  let hidden = false;
+  try { hidden = localStorage.getItem('ssp-welcome-hidden') === '1'; } catch (e) { /* almacenamiento no disponible */ }
+  if (hidden || location.hash) return;
+  box.hidden = false;
+  const close = () => {
+    if ($('welcome-hide').checked) {
+      try { localStorage.setItem('ssp-welcome-hidden', '1'); } catch (e) { /* almacenamiento no disponible */ }
+    }
+    box.hidden = true;
+  };
+  $('welcome-start').addEventListener('click', close);
+  $('welcome-lab').addEventListener('click', () => {
+    close();
+    document.querySelector('.tabs button[data-tab="lab"]').click();
+  });
+  box.addEventListener('click', (e) => { if (e.target === box) close(); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !box.hidden) close(); });
+})();
+
 // Se arranca cuando ya cargaron todos los scripts (impacts.js incluido).
 window.addEventListener('DOMContentLoaded', () => requestAnimationFrame(frame));
