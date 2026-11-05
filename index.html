@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema Solar 3D</title>
+  <title>Sistema Solar LAB</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <canvas id="scene"></canvas>
 
   <header id="hud-top" class="glass">
-    <h1>Sistema Solar 3D</h1>
+    <h1>Sistema Solar LAB</h1>
     <div id="date">—</div>
     <div id="speed-label" class="muted">—</div>
   </header>
@@ -102,6 +102,33 @@
   <div id="help" class="muted">
     Arrastrar: rotar · Rueda / pellizcar: zoom · Clic derecho o Shift+arrastrar: desplazar ·
     Clic en un cuerpo: seguirlo · Espacio: pausa · Esc: vista general
+  </div>
+
+  <div id="welcome" class="welcome-backdrop" hidden>
+    <section class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <h2 id="welcome-title">🌌 Bienvenido a Sistema Solar LAB</h2>
+      <p class="welcome-sub">Explora, experimenta y descubre el universo</p>
+      <p>
+        Sistema Solar LAB es un espacio interactivo creado con fines educativos y de divulgación
+        científica, donde podrás explorar el Sistema Solar, interactuar con cuerpos celestes y experimentar
+        con distintos fenómenos astronómicos.
+      </p>
+      <p>
+        La idea es aprender a través de la curiosidad, la observación y la experimentación, de una forma
+        entretenida y accesible para todos.
+      </p>
+      <p class="welcome-end">¡El universo está en tus manos! Atrévete a experimentar.</p>
+      <div class="row">
+        <button id="welcome-start" class="primary">🚀 Comenzar a explorar</button>
+        <button id="welcome-lab">☄ Ir al laboratorio</button>
+      </div>
+      <label class="welcome-hide"><input type="checkbox" id="welcome-hide" /> No volver a mostrar</label>
+    </section>
+    <p class="welcome-disclaimer">
+      ⚠ <strong>Una aclaración importante:</strong> esta es una simulación educativa. Algunas escalas,
+      movimientos, interacciones y fenómenos físicos han sido simplificados para facilitar su comprensión.
+      Por lo tanto, los resultados no deben interpretarse como representaciones o predicciones científicas exactas.
+    </p>
   </div>
 
   <script src="main.js"></script>
