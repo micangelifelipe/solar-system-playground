@@ -3,11 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema Solar LAB</title>
+  <title>Sistema Solar LAB — Simulación 3D interactiva del Sistema Solar</title>
+  <meta name="description" content="Explora el Sistema Solar en 3D y experimenta con impactos de asteroides, cometas y agujeros negros, una supernova del Sol, su evolución a gigante roja y la Vía Láctea. Simulación educativa gratuita en el navegador." />
+  <meta name="keywords" content="sistema solar, simulación 3D, astronomía, planetas, asteroides, cometas, agujero negro, supernova, gigante roja, vía láctea, educación, divulgación científica" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#02030a" />
+  <link rel="canonical" href="https://solar-simulation.pages.dev/" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <!-- Vista previa al compartir (Open Graph / Twitter) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Sistema Solar LAB" />
+  <meta property="og:title" content="Sistema Solar LAB — Explora, experimenta y descubre el universo" />
+  <meta property="og:description" content="Simulación educativa en 3D: explora el Sistema Solar, lanza asteroides, cometas y agujeros negros, haz explotar el Sol y viaja hasta la Vía Láctea." />
+  <meta property="og:url" content="https://solar-simulation.pages.dev/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Sistema Solar LAB — Explora, experimenta y descubre el universo" />
+  <meta name="twitter:description" content="Simulación educativa en 3D del Sistema Solar, con laboratorio de impactos, supernova, evolución del Sol y la Vía Láctea." />
+
+  <!-- Datos estructurados para buscadores -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Sistema Solar LAB",
+    "url": "https://solar-simulation.pages.dev/",
+    "description": "Simulación educativa e interactiva en 3D del Sistema Solar, con laboratorio de impactos de asteroides, cometas y agujeros negros, supernova hipotética, evolución real del Sol y vista de la Vía Láctea.",
+    "applicationCategory": "EducationalApplication",
+    "genre": "Astronomía",
+    "inLanguage": "es",
+    "operatingSystem": "Cualquiera (navegador web)",
+    "browserRequirements": "Requiere JavaScript y Canvas 2D",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "educationalUse": "Exploración, experimentación",
+    "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+    "about": ["Sistema Solar", "Impactos astronómicos", "Agujeros negros", "Supernova", "Evolución estelar", "Vía Láctea"]
+  }
+  </script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <canvas id="scene"></canvas>
+  <canvas id="scene" role="img" aria-label="Simulación 3D interactiva del Sistema Solar"></canvas>
+
+  <noscript>
+    <main class="noscript">
+      <h1>Sistema Solar LAB</h1>
+      <p><strong>Explora, experimenta y descubre el universo.</strong> Sistema Solar LAB es una simulación
+        educativa e interactiva en 3D del Sistema Solar. Necesita JavaScript activado para funcionar.</p>
+      <h2>Qué puedes hacer</h2>
+      <ul>
+        <li>Recorrer el Sol, los 8 planetas, sus lunas principales, los planetas enanos y cometas como Halley o Hale-Bopp, con órbitas y periodos reales.</li>
+        <li>Ver el cinturón de asteroides con los huecos de Kirkwood, los troyanos de Júpiter y el cinturón de Kuiper.</li>
+        <li>Lanzar meteoros, asteroides, cometas y agujeros negros contra planetas o contra el Sol: escenarios como Chicxulub, Tunguska, Theia o Shoemaker-Levy 9.</li>
+        <li>Imaginar al Sol convertido en supernova y ver cómo afecta a planetas, lunas y cometas.</li>
+        <li>Seguir la evolución real del Sol: gigante roja, nebulosa planetaria y enana blanca.</li>
+        <li>Alejarte hasta ver la Vía Láctea a escala real y ubicar al Sistema Solar en el brazo de Orión.</li>
+      </ul>
+      <p>Simulación educativa: algunas escalas y fenómenos están simplificados y no son predicciones científicas exactas.</p>
+    </main>
+  </noscript>
 
   <header id="hud-top" class="glass">
     <h1>Sistema Solar LAB</h1>

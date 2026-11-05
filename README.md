@@ -4,9 +4,13 @@ An interactive 3D simulation of the Solar System written in **plain JavaScript a
 
 > The user interface is in Spanish.
 
+**▶ Live demo: [solar-simulation.pages.dev](https://solar-simulation.pages.dev/)**
+
 ## Running it
 
-Open `index.html` in a modern browser (Chrome, Edge, Firefox or Safari). That's it: no server, no dependencies, no internet connection required.
+Use the live demo above, or open `index.html` in a modern browser (Chrome, Edge, Firefox or Safari). That's it: no server, no dependencies, no internet connection required.
+
+The site is deployed on Cloudflare Pages from this GitHub repository. `robots.txt`, `sitemap.xml`, the canonical URL and the structured data all point to `https://solar-simulation.pages.dev/`.
 
 ## Features
 
