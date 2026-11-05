@@ -24,6 +24,13 @@ Open `index.html` in a modern browser (Chrome, Edge, Firefox or Safari). That's 
   - the Kuiper belt.
 - **Correct depth sorting** between bodies and particles, a starfield with a Milky Way band, labels, and info cards with live data.
 
+### The Milky Way
+
+Zoom far out (or press **G** / the "🌌 Ver la Vía Láctea" button) and the Solar System shrinks to a point inside the Milky Way, drawn to true scale in light-years:
+- **Real orientation:** the galactic plane is tilted ~60° to the ecliptic, and the galactic center (Sagittarius A*) lies ~26,000 light-years away toward Sagittarius. The Milky Way band in the starfield uses the same plane, so as you zoom out it turns into the galaxy's disk.
+- **Structure:** a barred spiral with four logarithmic arms (~12° pitch). The Sun sits in the local Orion arm, between the Perseus and Sagittarius–Carina arms. There is also a central bar and bulge, a diffuse disk, pink emission nebulae, and globular clusters in the halo.
+- **Camera:** as you zoom out, the rotation pivot slides toward the galactic center.
+
 ### Impact laboratory (☄ Impactos tab)
 
 | Projectile | What it does |
@@ -67,7 +74,7 @@ Each scenario can be opened directly with `index.html#escenario=N`:
 | 18 | A weak supernova that ejects only 30% of the mass |
 | 19 | The real evolution of the Sun: red giant → white dwarf |
 
-You can also link straight to a body, e.g. `index.html#Saturno` or `index.html#Halley`.
+You can also link straight to a body, e.g. `index.html#Saturno` or `index.html#Halley`, or to the galaxy view with `index.html#galaxia`.
 
 ## Physics
 
@@ -121,6 +128,7 @@ The visuals are exaggerated, but the numbers behind them come from real physics:
 | Pause | Space |
 | Overview | Esc |
 | Focus Sun / planets | Keys 0–8 |
+| Milky Way view (toggle) | G |
 
 ## Project structure
 
@@ -129,6 +137,9 @@ The visuals are exaggerated, but the numbers behind them come from real physics:
 | `index.html` | Page layout, side panel (View / Impacts tabs), info card and event log |
 | `style.css` | Dark, glass-style UI |
 | `main.js` | Bodies and orbits, distance scale, 3D projection, rendering (spheres, rings, comets, particles), camera, input, main loop |
+| `galaxy.js` | Milky Way layer: true-scale galaxy model, camera pivot and flight, galactic labels |
 | `impacts.js` | Impact laboratory: physics, local and heliocentric debris, N-body integrator, black holes, supernova, stellar evolution, effects and lab UI |
 
-`main.js` loads first. `impacts.js` exposes a single `Impacts` object, and `main.js` calls it at fixed points: time scale, integration, per-frame update, surface effects, special bodies and the overlay.
+`main.js` loads first, then `galaxy.js`, then `impacts.js`. Each later file exposes a single object (`Galaxy`, `Impacts`), and `main.js` calls them at fixed points.
+- `Galaxy`: camera and drawing layers.
+- `Impacts`: time scale, integration, per-frame update, surface effects, special bodies and the overlay.

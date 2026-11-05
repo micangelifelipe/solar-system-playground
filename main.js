@@ -504,15 +504,33 @@ const STAR_LEVELS = [
   { color: 'rgba(220,228,255,0.75)', size: 1.3, dirs: [] },
   { color: 'rgba(255,250,235,0.95)', size: 1.8, dirs: [] },
 ];
+// Orientación real de la Vía Láctea respecto de la eclíptica (ejes de escena):
+// polo norte galáctico (λ = 180,02°, β = +29,81°) y centro galáctico (λ = 266,84°, β = −5,54°).
+function eclDir(lamDeg, betDeg) {
+  const l = lamDeg * DEG, b = betDeg * DEG;
+  return { x: Math.cos(b) * Math.cos(l), y: Math.sin(b), z: Math.cos(b) * Math.sin(l) };
+}
+const GAL_N = eclDir(180.02, 29.81);
+const GAL_GC = eclDir(266.84, -5.54);
+// Tercer eje del plano galáctico (perpendicular al centro, dentro del plano).
+const GAL_E2 = {
+  x: GAL_N.y * GAL_GC.z - GAL_N.z * GAL_GC.y,
+  y: GAL_N.z * GAL_GC.x - GAL_N.x * GAL_GC.z,
+  z: GAL_N.x * GAL_GC.y - GAL_N.y * GAL_GC.x,
+};
+
 (function initStars() {
-  const tilt = 62 * DEG, ct = Math.cos(tilt), st = Math.sin(tilt);
   for (let i = 0; i < 2600; i++) {
     let x, y, z;
     if (i < 1100) {
-      // Banda de la Vía Láctea: estrellas concentradas cerca de un plano inclinado.
-      const a = rand() * TAU, off = gauss() * 0.12;
-      const bx = Math.cos(a), bz = Math.sin(a), by = off;
-      x = bx; y = by * ct - bz * st; z = by * st + bz * ct;
+      // Banda de la Vía Láctea en su plano real, más densa y gruesa hacia el centro galáctico (Sagitario).
+      const towardCenter = rand() < 0.35;
+      const a = towardCenter ? gauss() * 0.7 : rand() * TAU;
+      const off = gauss() * (towardCenter ? 0.1 + 0.14 * Math.exp(-a * a) : 0.1);
+      const c = Math.cos(a), s = Math.sin(a);
+      x = c * GAL_GC.x + s * GAL_E2.x + off * GAL_N.x;
+      y = c * GAL_GC.y + s * GAL_E2.y + off * GAL_N.y;
+      z = c * GAL_GC.z + s * GAL_E2.z + off * GAL_N.z;
     } else {
       const u = rand() * 2 - 1, a = rand() * TAU, s = Math.sqrt(1 - u * u);
       x = s * Math.cos(a); y = u; z = s * Math.sin(a);
@@ -539,6 +557,7 @@ const sim = { days: (Date.now() - J2000) / DAY_MS, speed: 10, paused: false, nbo
 const cam = {
   yaw: -0.6, pitch: 0.48, dist: 2600, tdist: 950,
   tx: 0, ty: 0, tz: 0,
+  ox: 0, oy: 0, oz: 0, // desplazamiento del centro de giro (hacia el centro galáctico al alejarse)
   follow: null, blend: 1, from: { x: 0, y: 0, z: 0 },
 };
 
@@ -561,7 +580,7 @@ resize();
 const V = { x: 0, y: 0, z: 0 };
 // Mundo -> coordenadas de cámara (x derecha, y arriba, z profundidad).
 function toView(x, y, z) {
-  x -= cam.tx; y -= cam.ty; z -= cam.tz;
+  x -= cam.tx + cam.ox; y -= cam.ty + cam.oy; z -= cam.tz + cam.oz;
   const x1 = x * cyaw - z * syaw;
   const z1 = x * syaw + z * cyaw;
   V.x = x1;
@@ -618,6 +637,7 @@ function updateCamera(dt) {
     cam.tz = cam.from.z + (f.z - cam.from.z) * e;
   }
   cam.dist += (cam.tdist - cam.dist) * Math.min(1, dt * 4);
+  Galaxy.updateCamera(dt);
   cyaw = Math.cos(cam.yaw); syaw = Math.sin(cam.yaw);
   cpit = Math.cos(cam.pitch); spit = Math.sin(cam.pitch);
 }
@@ -1016,7 +1036,7 @@ function processParticles(days, zs, nb) {
   if (binStart.length < nKeys + 1) binStart = new Int32Array(nKeys + 1);
   const counts = binStart;
   counts.fill(0, 0, nKeys + 1);
-  const tx = cam.tx, ty = cam.ty, tz = cam.tz, dist = cam.dist;
+  const tx = cam.tx + cam.ox, ty = cam.ty + cam.oy, tz = cam.tz + cam.oz, dist = cam.dist;
   const nb3 = beltState.on;
   const dyn = Impacts.dyn;
   const total = NP + dyn.n;
@@ -1115,9 +1135,20 @@ function draw() {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  if (opts.stars) drawStars();
+  // Al alejarse mucho, el fondo estrellado se atenúa y aparece la Vía Láctea completa.
+  const gal = Galaxy.visibility();
+  if (opts.stars) {
+    ctx.globalAlpha = 1 - 0.85 * gal;
+    drawStars();
+    ctx.globalAlpha = 1;
+  }
+  Galaxy.draw();
   projectBodies();
-  if (opts.orbits) drawOrbits();
+  if (opts.orbits && gal < 0.95) {
+    ctx.globalAlpha = 1 - gal;
+    drawOrbits();
+    ctx.globalAlpha = 1;
+  }
 
   sortedBodies = BODIES.filter((b) => b.visible).sort((a, b) => b.vz - a.vz);
   const zs = sortedBodies.map((b) => b.vz);
@@ -1129,7 +1160,9 @@ function draw() {
     drawBin(k + 1);
   }
   Impacts.drawOverlay();
-  if (opts.labels) drawLabels(sortedBodies);
+  // Lejos, todos los cuerpos se juntan en un punto: sus etiquetas dejan paso a las de la galaxia.
+  if (opts.labels && gal < 0.5) drawLabels(sortedBodies);
+  if (opts.labels) Galaxy.drawLabels();
 }
 
 let last = performance.now();
@@ -1365,7 +1398,7 @@ canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 
 function zoomBy(f) {
-  cam.tdist = Math.max(minDist(), Math.min(4500, cam.tdist * f));
+  cam.tdist = Math.max(minDist(), Math.min(Galaxy.MAX_DIST, cam.tdist * f));
 }
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
@@ -1391,6 +1424,7 @@ document.addEventListener('change', (e) => e.target.blur?.());
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); togglePause(); }
   else if (e.key === 'Escape') resetView();
+  else if (e.key === 'g' || e.key === 'G') Galaxy.toggle();
   else if (/^[0-8]$/.test(e.key)) focusOn(e.key === '0' ? SUN : PLANETS[+e.key - 1]);
 });
 
