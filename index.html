@@ -1,194 +1,216 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema Solar LAB — Simulación 3D interactiva del Sistema Solar</title>
-  <meta name="description" content="Explora el Sistema Solar en 3D y experimenta con impactos de asteroides, cometas y agujeros negros, una supernova del Sol, su evolución a gigante roja y la Vía Láctea. Simulación educativa gratuita en el navegador." />
-  <meta name="keywords" content="sistema solar, simulación 3D, astronomía, planetas, asteroides, cometas, agujero negro, supernova, gigante roja, vía láctea, educación, divulgación científica" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Solar System LAB — Interactive 3D Solar System Simulation</title>
+  <meta name="description" content="Explore the Solar System in 3D and experiment with asteroid, comet and black hole impacts, a supernova of the Sun, its evolution into a red giant and the Milky Way. Free educational simulation in your browser, in English and Spanish." />
+  <meta name="keywords" content="solar system, 3D simulation, astronomy, planets, asteroids, comets, black hole, supernova, red giant, milky way, education, science outreach, sistema solar, simulación" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="google-site-verification" content="ahOs4RGZ1XGmhGk81fCQF7kAdhKlGuMs-H5V9YJgkCY" />
   <meta name="theme-color" content="#02030a" />
   <link rel="canonical" href="https://solar-simulation.pages.dev/" />
+  <!-- Versiones por idioma (inglés por defecto; español con ?lang=es) -->
+  <link rel="alternate" hreflang="en" href="https://solar-simulation.pages.dev/" />
+  <link rel="alternate" hreflang="es" href="https://solar-simulation.pages.dev/?lang=es" />
+  <link rel="alternate" hreflang="x-default" href="https://solar-simulation.pages.dev/" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
   <!-- Vista previa al compartir (Open Graph / Twitter) -->
   <meta property="og:type" content="website" />
-  <meta property="og:locale" content="es_ES" />
-  <meta property="og:site_name" content="Sistema Solar LAB" />
-  <meta property="og:title" content="Sistema Solar LAB — Explora, experimenta y descubre el universo" />
-  <meta property="og:description" content="Simulación educativa en 3D: explora el Sistema Solar, lanza asteroides, cometas y agujeros negros, haz explotar el Sol y viaja hasta la Vía Láctea." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+  <meta property="og:site_name" content="Solar System LAB" />
+  <meta property="og:title" content="Solar System LAB — Explore, experiment and discover the universe" />
+  <meta property="og:description" content="An educational 3D simulation: explore the Solar System, launch asteroids, comets and black holes, blow up the Sun and travel out to the Milky Way." />
   <meta property="og:url" content="https://solar-simulation.pages.dev/" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Sistema Solar LAB — Explora, experimenta y descubre el universo" />
-  <meta name="twitter:description" content="Simulación educativa en 3D del Sistema Solar, con laboratorio de impactos, supernova, evolución del Sol y la Vía Láctea." />
+  <meta name="twitter:title" content="Solar System LAB — Explore, experiment and discover the universe" />
+  <meta name="twitter:description" content="An educational 3D Solar System simulation with an impact lab, a supernova, the Sun's evolution and the Milky Way." />
 
   <!-- Datos estructurados para buscadores -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Sistema Solar LAB",
+    "name": "Solar System LAB",
+    "alternateName": "Sistema Solar LAB",
     "url": "https://solar-simulation.pages.dev/",
-    "description": "Simulación educativa e interactiva en 3D del Sistema Solar, con laboratorio de impactos de asteroides, cometas y agujeros negros, supernova hipotética, evolución real del Sol y vista de la Vía Láctea.",
+    "description": "An educational, interactive 3D simulation of the Solar System, with an impact lab for asteroids, comets and black holes, a hypothetical supernova, the real evolution of the Sun and a view of the Milky Way.",
     "applicationCategory": "EducationalApplication",
-    "genre": "Astronomía",
-    "inLanguage": "es",
-    "operatingSystem": "Cualquiera (navegador web)",
-    "browserRequirements": "Requiere JavaScript y Canvas 2D",
+    "genre": "Astronomy",
+    "inLanguage": ["en", "es"],
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Requires JavaScript and Canvas 2D",
     "isAccessibleForFree": true,
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "educationalUse": "Exploración, experimentación",
+    "educationalUse": "Exploration, experimentation",
     "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
-    "about": ["Sistema Solar", "Impactos astronómicos", "Agujeros negros", "Supernova", "Evolución estelar", "Vía Láctea"]
+    "about": ["Solar System", "Astronomical impacts", "Black holes", "Supernova", "Stellar evolution", "Milky Way"]
   }
   </script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <canvas id="scene" role="img" aria-label="Simulación 3D interactiva del Sistema Solar"></canvas>
+  <canvas id="scene" role="img" aria-label="Interactive 3D simulation of the Solar System" data-i18n-attr="aria-label:canvas.aria"></canvas>
 
   <noscript>
     <main class="noscript">
-      <h1>Sistema Solar LAB</h1>
-      <p><strong>Explora, experimenta y descubre el universo.</strong> Sistema Solar LAB es una simulación
-        educativa e interactiva en 3D del Sistema Solar. Necesita JavaScript activado para funcionar.</p>
-      <h2>Qué puedes hacer</h2>
+      <h1>Solar System LAB</h1>
+      <p><strong>Explore, experiment and discover the universe.</strong> Solar System LAB is an educational,
+        interactive 3D simulation of the Solar System. It needs JavaScript enabled to work.</p>
+      <h2>What you can do</h2>
       <ul>
-        <li>Recorrer el Sol, los 8 planetas, sus lunas principales, los planetas enanos y cometas como Halley o Hale-Bopp, con órbitas y periodos reales.</li>
-        <li>Ver el cinturón de asteroides con los huecos de Kirkwood, los troyanos de Júpiter y el cinturón de Kuiper.</li>
-        <li>Lanzar meteoros, asteroides, cometas y agujeros negros contra planetas o contra el Sol: escenarios como Chicxulub, Tunguska, Theia o Shoemaker-Levy 9.</li>
-        <li>Imaginar al Sol convertido en supernova y ver cómo afecta a planetas, lunas y cometas.</li>
-        <li>Seguir la evolución real del Sol: gigante roja, nebulosa planetaria y enana blanca.</li>
-        <li>Alejarte hasta ver la Vía Láctea a escala real y ubicar al Sistema Solar en el brazo de Orión.</li>
+        <li>Tour the Sun, the 8 planets, their main moons, the dwarf planets and comets such as Halley and Hale-Bopp, with real orbits and periods.</li>
+        <li>See the asteroid belt with its Kirkwood gaps, Jupiter's Trojans and the Kuiper belt.</li>
+        <li>Launch meteors, asteroids, comets and black holes at planets or at the Sun: scenarios such as Chicxulub, Tunguska, Theia and Shoemaker-Levy 9.</li>
+        <li>Imagine the Sun turning into a supernova and watch how it affects planets, moons and comets.</li>
+        <li>Follow the real evolution of the Sun: red giant, planetary nebula and white dwarf.</li>
+        <li>Zoom out until you see the Milky Way to true scale and find the Solar System in the Orion arm.</li>
       </ul>
-      <p>Simulación educativa: algunas escalas y fenómenos están simplificados y no son predicciones científicas exactas.</p>
+      <p>Available in English and Spanish (<a href="?lang=es">versión en español</a>).</p>
+      <p>Educational simulation: some scales and phenomena are simplified and are not exact scientific predictions.</p>
     </main>
   </noscript>
 
   <header id="hud-top" class="glass">
-    <h1>Sistema Solar LAB</h1>
+    <div class="hud-title">
+      <h1 data-i18n="app.name">Solar System LAB</h1>
+      <div class="lang-switch" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.aria">
+        <button data-lang="en" lang="en" title="English">EN</button>
+        <button data-lang="es" lang="es" title="Español">ES</button>
+      </div>
+    </div>
     <div id="date">—</div>
     <div id="speed-label" class="muted">—</div>
   </header>
 
+  <!-- En tabletas y teléfonos el panel se abre y cierra con este botón. -->
+  <button id="panel-toggle" class="glass" aria-controls="panel" aria-expanded="false" data-i18n="panel.toggle">⚙ Controls</button>
+
   <aside id="panel" class="glass">
     <div class="tabs" role="tablist">
-      <button data-tab="view" class="active">Vista</button>
-      <button data-tab="lab">☄ Impactos</button>
+      <button data-tab="view" class="active" data-i18n="tab.view">View</button>
+      <button data-tab="lab" data-i18n="tab.lab">☄ Impacts</button>
     </div>
     <label class="slider">
-      <span>Velocidad</span>
+      <span data-i18n="speed">Speed</span>
       <input type="range" id="speed" min="0" max="100" value="45" />
     </label>
     <div class="row">
-      <button id="pause">⏸ Pausa</button>
-      <button id="today">Hoy</button>
+      <button id="pause" data-i18n="pause">⏸ Pause</button>
+      <button id="today" data-i18n="today">Today</button>
     </div>
 
     <div id="tab-lab" class="tab" hidden>
       <div class="seg" id="lab-type">
-        <button data-type="meteor" class="active">Meteoro</button>
-        <button data-type="asteroid">Asteroide</button>
-        <button data-type="comet">Cometa</button>
-        <button data-type="bh">Agujero negro</button>
-        <button data-type="sn">☀ Supernova</button>
-        <button data-type="evo">🌅 Evolución del Sol</button>
+        <button data-type="meteor" class="active" data-i18n="type.meteor">Meteor</button>
+        <button data-type="asteroid" data-i18n="type.asteroid">Asteroid</button>
+        <button data-type="comet" data-i18n="type.comet">Comet</button>
+        <button data-type="bh" data-i18n="type.bh">Black hole</button>
+        <button data-type="sn" data-i18n="type.sn">☀ Supernova</button>
+        <button data-type="evo" data-i18n="type.evo">🌅 Sun’s evolution</button>
       </div>
-      <label class="field"><span>Escenario</span>
-        <select id="lab-preset"><option value="">Personalizado</option></select>
+      <label class="field"><span data-i18n="lab.preset">Scenario</span>
+        <select id="lab-preset"><option value="" data-i18n="lab.custom">Custom</option></select>
       </label>
-      <label class="field"><span>Objetivo</span><select id="lab-target"></select></label>
+      <label class="field"><span data-i18n="lab.target">Target</span><select id="lab-target"></select></label>
       <div class="slider">
-        <div class="slider-head"><span id="lab-size-label">Diámetro</span><output id="lab-size-out"></output></div>
+        <div class="slider-head"><span id="lab-size-label" data-i18n="lab.size">Diameter</span><output id="lab-size-out"></output></div>
         <input type="range" id="lab-size" min="0" max="1000" />
       </div>
       <div class="slider">
-        <div class="slider-head"><span id="lab-speed-label">Velocidad de impacto</span><output id="lab-speed-out"></output></div>
+        <div class="slider-head"><span id="lab-speed-label" data-i18n="lab.speed">Impact speed</span><output id="lab-speed-out"></output></div>
         <input type="range" id="lab-speed" min="0" max="1000" />
       </div>
       <div class="slider" id="lab-angle-row">
-        <div class="slider-head"><span>Ángulo de entrada</span><output id="lab-angle-out"></output></div>
+        <div class="slider-head"><span data-i18n="lab.angle">Entry angle</span><output id="lab-angle-out"></output></div>
         <input type="range" id="lab-angle" min="10" max="90" value="45" />
       </div>
       <div class="slider" id="lab-frags-row">
-        <div class="slider-head"><span>Fragmentos</span><output id="lab-frags-out"></output></div>
+        <div class="slider-head"><span data-i18n="lab.frags">Fragments</span><output id="lab-frags-out"></output></div>
         <input type="range" id="lab-frags" min="1" max="8" value="1" />
       </div>
       <div id="lab-estimate" class="estimate"></div>
-      <button id="lab-launch" class="primary wide">🚀 Lanzar</button>
-      <button id="lab-reset" class="wide">↺ Restablecer sistema</button>
+      <button id="lab-launch" class="primary wide" data-closes-panel data-i18n="lab.launch">🚀 Launch</button>
+      <button id="lab-reset" class="wide" data-i18n="lab.reset">↺ Reset system</button>
     </div>
 
     <div id="tab-view" class="tab">
     <div class="checks">
-      <label><input type="checkbox" id="opt-orbits" checked /> Órbitas</label>
-      <label><input type="checkbox" id="opt-labels" checked /> Nombres</label>
-      <label><input type="checkbox" id="opt-belt" checked /> Cinturón de asteroides</label>
-      <label><input type="checkbox" id="opt-trojans" checked /> Troyanos de Júpiter</label>
-      <label><input type="checkbox" id="opt-kuiper" checked /> Cinturón de Kuiper</label>
-      <label><input type="checkbox" id="opt-dwarfs" checked /> Planetas enanos</label>
-      <label><input type="checkbox" id="opt-comets" checked /> Cometas</label>
-      <label><input type="checkbox" id="opt-stars" checked /> Estrellas</label>
-      <label><input type="checkbox" id="opt-rotate" /> Rotación automática</label>
+      <label><input type="checkbox" id="opt-orbits" checked /> <span data-i18n="opt.orbits">Orbits</span></label>
+      <label><input type="checkbox" id="opt-labels" checked /> <span data-i18n="opt.labels">Names</span></label>
+      <label><input type="checkbox" id="opt-belt" checked /> <span data-i18n="opt.belt">Asteroid belt</span></label>
+      <label><input type="checkbox" id="opt-trojans" checked /> <span data-i18n="opt.trojans">Jupiter’s Trojans</span></label>
+      <label><input type="checkbox" id="opt-kuiper" checked /> <span data-i18n="opt.kuiper">Kuiper belt</span></label>
+      <label><input type="checkbox" id="opt-dwarfs" checked /> <span data-i18n="opt.dwarfs">Dwarf planets</span></label>
+      <label><input type="checkbox" id="opt-comets" checked /> <span data-i18n="opt.comets">Comets</span></label>
+      <label><input type="checkbox" id="opt-stars" checked /> <span data-i18n="opt.stars">Stars</span></label>
+      <label><input type="checkbox" id="opt-rotate" /> <span data-i18n="opt.rotate">Auto-rotate</span></label>
     </div>
-    <select id="others" class="wide" aria-label="Ir a planeta enano o cometa">
-      <option value="">Ir a planeta enano / cometa…</option>
+    <select id="others" class="wide" aria-label="Go to a dwarf planet or comet" data-i18n-attr="aria-label:others.aria" data-closes-panel>
+      <option value="" data-i18n="others.placeholder">Go to dwarf planet / comet…</option>
     </select>
-    <button id="galaxy-btn" class="wide">🌌 Ver la Vía Láctea</button>
-    <button id="reset" class="wide">Vista general</button>
+    <button id="galaxy-btn" class="wide" data-closes-panel data-i18n="galaxy.go">🌌 See the Milky Way</button>
+    <button id="reset" class="wide" data-closes-panel data-i18n="view.reset">Overview</button>
     </div>
   </aside>
 
   <section id="log" class="glass" hidden>
     <div class="log-head">
-      <h3>Evolución</h3>
-      <button id="log-close" aria-label="Ocultar">×</button>
+      <h3 data-i18n="log.title">Timeline</h3>
+      <button id="log-close" aria-label="Hide" data-i18n-attr="aria-label:log.hide">×</button>
     </div>
     <ol id="log-list"></ol>
   </section>
 
   <section id="info" class="glass" hidden>
-    <button id="info-close" aria-label="Cerrar">×</button>
+    <button id="info-close" aria-label="Close" data-i18n-attr="aria-label:info.close">×</button>
     <h2 id="info-name"></h2>
     <p id="info-desc"></p>
     <dl id="info-facts"></dl>
   </section>
 
+  <!-- Zoom táctil (visible en teléfonos, tabletas y pantallas táctiles) -->
+  <div id="zoom-ctrl" class="glass" role="group" aria-label="Zoom" data-i18n-attr="aria-label:zoom.group">
+    <button id="zoom-in" aria-label="Zoom in" title="Zoom in" data-i18n-attr="aria-label:zoom.in;title:zoom.in">＋</button>
+    <button id="zoom-out" aria-label="Zoom out" title="Zoom out" data-i18n-attr="aria-label:zoom.out;title:zoom.out">－</button>
+  </div>
+
   <nav id="planet-bar" class="glass"></nav>
 
-  <div id="help" class="muted">
-    Arrastrar: rotar · Rueda / pellizcar: zoom · Clic derecho o Shift+arrastrar: desplazar ·
-    Clic en un cuerpo: seguirlo · Espacio: pausa · Esc: vista general
+  <div id="help" class="muted" data-i18n="help">
+    Drag: rotate · Wheel / pinch: zoom · Right-click or Shift+drag: pan · Click a body: follow it · Space: pause · Esc: overview · G: Milky Way
   </div>
 
   <div id="welcome" class="welcome-backdrop" hidden>
     <section class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-      <h2 id="welcome-title">🌌 Bienvenido a Sistema Solar LAB</h2>
-      <p class="welcome-sub">Explora, experimenta y descubre el universo</p>
-      <p>
-        Sistema Solar LAB es un espacio interactivo creado con fines educativos y de divulgación
-        científica, donde podrás explorar el Sistema Solar, interactuar con cuerpos celestes y experimentar
-        con distintos fenómenos astronómicos.
+      <h2 id="welcome-title" data-i18n="welcome.title">🌌 Welcome to Solar System LAB</h2>
+      <p class="welcome-sub" data-i18n="welcome.sub">Explore, experiment and discover the universe</p>
+      <p data-i18n="welcome.p1">
+        Solar System LAB is an interactive space created for education and science outreach, where you can explore
+        the Solar System, interact with celestial bodies and experiment with different astronomical phenomena.
       </p>
-      <p>
-        La idea es aprender a través de la curiosidad, la observación y la experimentación, de una forma
-        entretenida y accesible para todos.
+      <p data-i18n="welcome.p2">
+        The idea is to learn through curiosity, observation and experimentation, in a fun way that is accessible to everyone.
       </p>
-      <p class="welcome-end">¡El universo está en tus manos! Atrévete a experimentar.</p>
-      <div class="row">
-        <button id="welcome-start" class="primary">🚀 Comenzar a explorar</button>
-        <button id="welcome-lab">☄ Ir al laboratorio</button>
+      <p class="welcome-end" data-i18n="welcome.end">The universe is in your hands! Dare to experiment.</p>
+      <div class="welcome-actions">
+        <div class="row">
+          <button id="welcome-start" class="primary" data-i18n="welcome.start">🚀 Start exploring</button>
+          <button id="welcome-lab" data-i18n="welcome.lab">☄ Go to the lab</button>
+        </div>
+        <label class="welcome-hide"><input type="checkbox" id="welcome-hide" /> <span data-i18n="welcome.hide">Don’t show again</span></label>
       </div>
-      <label class="welcome-hide"><input type="checkbox" id="welcome-hide" /> No volver a mostrar</label>
     </section>
-    <p class="welcome-disclaimer">
-      ⚠ <strong>Una aclaración importante:</strong> esta es una simulación educativa. Algunas escalas,
-      movimientos, interacciones y fenómenos físicos han sido simplificados para facilitar su comprensión.
-      Por lo tanto, los resultados no deben interpretarse como representaciones o predicciones científicas exactas.
+    <p class="welcome-disclaimer" data-i18n="welcome.disclaimer">
+      ⚠ <strong>An important note:</strong> this is an educational simulation. Some scales, motions, interactions and
+      physical phenomena have been simplified to make them easier to understand. Therefore, the results should not be
+      interpreted as exact scientific representations or predictions.
     </p>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="main.js"></script>
   <script src="galaxy.js"></script>
   <script src="impacts.js"></script>

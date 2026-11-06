@@ -2,7 +2,7 @@
 
 An interactive 3D simulation of the Solar System written in **plain JavaScript and Canvas 2D**: no frameworks, no libraries, no build step. It includes the planets and their main moons, dwarf planets, comets, the asteroid belt, Jupiter's Trojans and the Kuiper belt. It also includes an **impact laboratory** where you can hit planets (or the Sun) with meteors, asteroids, comets and black holes and watch how the system evolves over time. It can also turn the Sun into a hypothetical supernova or play back its real stellar evolution.
 
-> The user interface is in Spanish.
+> Available in **English** (default) and **Spanish**. Switch with the **EN | ES** selector in the header, or open the Spanish version directly with `?lang=es`.
 
 **▶ Live demo: [solar-simulation.pages.dev](https://solar-simulation.pages.dev/)**
 
@@ -78,7 +78,7 @@ Each scenario can be opened directly with `index.html#escenario=N`:
 | 18 | A weak supernova that ejects only 30% of the mass |
 | 19 | The real evolution of the Sun: red giant → white dwarf |
 
-You can also link straight to a body, e.g. `index.html#Saturno` or `index.html#Halley`, or to the galaxy view with `index.html#galaxia`.
+You can also link straight to a body using its name in either language, e.g. `index.html#Saturn`, `index.html#Saturno` or `index.html#Halley`, or to the galaxy view with `index.html#galaxia`.
 
 ## Physics
 
@@ -139,11 +139,12 @@ The visuals are exaggerated, but the numbers behind them come from real physics:
 | File | Contents |
 |---|---|
 | `index.html` | Page layout, side panel (View / Impacts tabs), info card and event log |
+| `i18n.js` | Language selection (English by default, Spanish), static UI dictionary and the `L('English', 'Español')` helper used in the code |
 | `style.css` | Dark, glass-style UI |
 | `main.js` | Bodies and orbits, distance scale, 3D projection, rendering (spheres, rings, comets, particles), camera, input, main loop |
 | `galaxy.js` | Milky Way layer: true-scale galaxy model, camera pivot and flight, galactic labels |
 | `impacts.js` | Impact laboratory: physics, local and heliocentric debris, N-body integrator, black holes, supernova, stellar evolution, effects and lab UI |
 
-`main.js` loads first, then `galaxy.js`, then `impacts.js`. Each later file exposes a single object (`Galaxy`, `Impacts`), and `main.js` calls them at fixed points.
+`i18n.js` loads first and translates the static HTML. Then `main.js`, `galaxy.js` and `impacts.js` load in that order. Each later file exposes a single object (`Galaxy`, `Impacts`), and `main.js` calls them at fixed points.
 - `Galaxy`: camera and drawing layers.
 - `Impacts`: time scale, integration, per-frame update, surface effects, special bodies and the overlay.

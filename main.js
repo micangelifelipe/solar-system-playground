@@ -35,87 +35,117 @@ function gauss() {
 // Distancias y tamaños están comprimidos para que todo quepa en pantalla;
 // los periodos orbitales, inclinaciones y longitudes iniciales son reales.
 
+// Cada cuerpo tiene una clave fija (key, en español) que usa la lógica interna,
+// y un nombre visible (name) en el idioma activo.
 const SUN = {
-  name: 'Sol', type: 'sun', r: 26, x: 0, y: 0, z: 0,
+  key: 'Sol', name: L('Sun', 'Sol'), type: 'sun', r: 26, x: 0, y: 0, z: 0,
   swatch: '#ffc247',
-  desc: 'Estrella enana amarilla que contiene el 99,86 % de la masa del sistema solar.',
-  facts: [['Tipo', 'G2V'], ['Radio', '696.340 km'], ['Temperatura superficial', '5.500 °C'], ['Edad', '4.600 millones de años']],
+  desc: L('A yellow dwarf star that holds 99.86% of the mass of the Solar System.',
+    'Estrella enana amarilla que contiene el 99,86 % de la masa del sistema solar.'),
+  facts: L(
+    [['Type', 'G2V'], ['Radius', '696,340 km'], ['Surface temperature', '5,500 °C'], ['Age', '4.6 billion years']],
+    [['Tipo', 'G2V'], ['Radio', '696.340 km'], ['Temperatura superficial', '5.500 °C'], ['Edad', '4.600 millones de años']]),
 };
 
+// Datos de cada planeta en inglés / español: [radio, distancia, año, día (etiqueta y valor), lunas].
 const PLANETS = [
   {
-    name: 'Mercurio', r: 3, dist: 55, period: 87.969, L0: 252.25, inc: 7.0, node: 48.3,
+    key: 'Mercurio', name: L('Mercury', 'Mercurio'), r: 3, dist: 55, period: 87.969, L0: 252.25, inc: 7.0, node: 48.3,
     color: ['#ece6dc', '#8a8279'],
-    desc: 'El planeta más pequeño y cercano al Sol; casi sin atmósfera y con temperaturas extremas.',
-    facts: [['Radio', '2.440 km'], ['Distancia media', '0,39 UA'], ['Año', '88 días'], ['Día solar', '176 días'], ['Lunas', '0']],
+    desc: L('The smallest planet and the closest to the Sun; it has almost no atmosphere and extreme temperatures.',
+      'El planeta más pequeño y cercano al Sol; casi sin atmósfera y con temperaturas extremas.'),
+    facts: L(
+      [['Radius', '2,440 km'], ['Mean distance', '0.39 AU'], ['Year', '88 days'], ['Solar day', '176 days'], ['Moons', '0']],
+      [['Radio', '2.440 km'], ['Distancia media', '0,39 UA'], ['Año', '88 días'], ['Día solar', '176 días'], ['Lunas', '0']]),
   },
   {
-    name: 'Venus', r: 5.6, dist: 80, period: 224.701, L0: 181.98, inc: 3.39, node: 76.7,
+    key: 'Venus', name: 'Venus', r: 5.6, dist: 80, period: 224.701, L0: 181.98, inc: 3.39, node: 76.7,
     color: ['#fff4d6', '#d4a95c'],
-    desc: 'Cubierto por densas nubes de ácido sulfúrico; es el planeta más caliente (464 °C).',
-    facts: [['Radio', '6.052 km'], ['Distancia media', '0,72 UA'], ['Año', '225 días'], ['Día sidéreo', '243 días (retrógrado)'], ['Lunas', '0']],
+    desc: L('Covered by thick clouds of sulfuric acid; it is the hottest planet (464 °C).',
+      'Cubierto por densas nubes de ácido sulfúrico; es el planeta más caliente (464 °C).'),
+    facts: L(
+      [['Radius', '6,052 km'], ['Mean distance', '0.72 AU'], ['Year', '225 days'], ['Sidereal day', '243 days (retrograde)'], ['Moons', '0']],
+      [['Radio', '6.052 km'], ['Distancia media', '0,72 UA'], ['Año', '225 días'], ['Día sidéreo', '243 días (retrógrado)'], ['Lunas', '0']]),
   },
   {
-    name: 'Tierra', r: 6, dist: 110, period: 365.256, L0: 100.46, inc: 0, node: 0,
+    key: 'Tierra', name: L('Earth', 'Tierra'), r: 6, dist: 110, period: 365.256, L0: 100.46, inc: 0, node: 0,
     color: ['#b4e1ff', '#1d5bb8'], atmo: 'rgba(110,175,255,',
     bands: [[1.15, 'cap', '#ffffff', 0.85], [-1.2, 'cap', '#ffffff', 0.85]],
-    desc: 'Nuestro hogar: el único mundo conocido con vida y océanos de agua líquida.',
-    facts: [['Radio', '6.371 km'], ['Distancia media', '1,00 UA'], ['Año', '365,25 días'], ['Día', '24 horas'], ['Lunas', '1']],
+    desc: L('Our home: the only known world with life and oceans of liquid water.',
+      'Nuestro hogar: el único mundo conocido con vida y océanos de agua líquida.'),
+    facts: L(
+      [['Radius', '6,371 km'], ['Mean distance', '1.00 AU'], ['Year', '365.25 days'], ['Day', '24 hours'], ['Moons', '1']],
+      [['Radio', '6.371 km'], ['Distancia media', '1,00 UA'], ['Año', '365,25 días'], ['Día', '24 horas'], ['Lunas', '1']]),
   },
   {
-    name: 'Marte', r: 4.2, dist: 145, period: 686.98, L0: 355.45, inc: 1.85, node: 49.6,
+    key: 'Marte', name: L('Mars', 'Marte'), r: 4.2, dist: 145, period: 686.98, L0: 355.45, inc: 1.85, node: 49.6,
     color: ['#ffc39b', '#b0412a'],
     bands: [[1.2, 'cap', '#ffffff', 0.75]],
-    desc: 'El planeta rojo; alberga el Monte Olimpo, el volcán más alto del sistema solar.',
-    facts: [['Radio', '3.390 km'], ['Distancia media', '1,52 UA'], ['Año', '687 días'], ['Día', '24 h 37 min'], ['Lunas', '2']],
+    desc: L('The red planet; home to Olympus Mons, the tallest volcano in the Solar System.',
+      'El planeta rojo; alberga el Monte Olimpo, el volcán más alto del sistema solar.'),
+    facts: L(
+      [['Radius', '3,390 km'], ['Mean distance', '1.52 AU'], ['Year', '687 days'], ['Day', '24 h 37 min'], ['Moons', '2']],
+      [['Radio', '3.390 km'], ['Distancia media', '1,52 UA'], ['Año', '687 días'], ['Día', '24 h 37 min'], ['Lunas', '2']]),
   },
   {
-    name: 'Júpiter', r: 16, dist: 290, period: 4332.59, L0: 34.4, inc: 1.3, node: 100.5,
+    key: 'Júpiter', name: L('Jupiter', 'Júpiter'), r: 16, dist: 290, period: 4332.59, L0: 34.4, inc: 1.3, node: 100.5,
     color: ['#f7e8cf', '#c29766'],
     bands: [[-0.62, 0.1, '#9c6b45', 0.45], [-0.3, 0.13, '#a3704a', 0.6], [0.02, 0.07, '#fff4e0', 0.45],
             [0.27, 0.14, '#94603c', 0.6], [0.58, 0.09, '#b0855e', 0.45], [-0.38, 0.05, '#c8553a', 0.5]],
-    desc: 'El gigante gaseoso; su Gran Mancha Roja es una tormenta más grande que la Tierra.',
-    facts: [['Radio', '69.911 km'], ['Distancia media', '5,20 UA'], ['Año', '11,86 años'], ['Día', '9 h 56 min'], ['Lunas', '95']],
+    desc: L('The gas giant; its Great Red Spot is a storm larger than the Earth.',
+      'El gigante gaseoso; su Gran Mancha Roja es una tormenta más grande que la Tierra.'),
+    facts: L(
+      [['Radius', '69,911 km'], ['Mean distance', '5.20 AU'], ['Year', '11.86 years'], ['Day', '9 h 56 min'], ['Moons', '95']],
+      [['Radio', '69.911 km'], ['Distancia media', '5,20 UA'], ['Año', '11,86 años'], ['Día', '9 h 56 min'], ['Lunas', '95']]),
   },
   {
-    name: 'Saturno', r: 13, dist: 390, period: 10759.22, L0: 49.94, inc: 2.49, node: 113.7,
+    key: 'Saturno', name: L('Saturn', 'Saturno'), r: 13, dist: 390, period: 10759.22, L0: 49.94, inc: 2.49, node: 113.7,
     color: ['#fcefcc', '#cca968'],
     bands: [[-0.45, 0.12, '#b48f58', 0.35], [0.12, 0.1, '#c4a067', 0.35], [0.5, 0.12, '#b48f58', 0.3]],
     ring: {
       tilt: 26.7,
       bands: [[1.24, 1.52, 'rgba(190,170,135,0.28)'], [1.53, 1.95, 'rgba(232,212,172,0.85)'], [2.03, 2.27, 'rgba(208,188,150,0.7)']],
     },
-    desc: 'Famoso por su espectacular sistema de anillos formados por hielo y roca.',
-    facts: [['Radio', '58.232 km'], ['Distancia media', '9,54 UA'], ['Año', '29,46 años'], ['Día', '10 h 33 min'], ['Lunas', '146']],
+    desc: L('Famous for its spectacular system of rings made of ice and rock.',
+      'Famoso por su espectacular sistema de anillos formados por hielo y roca.'),
+    facts: L(
+      [['Radius', '58,232 km'], ['Mean distance', '9.54 AU'], ['Year', '29.46 years'], ['Day', '10 h 33 min'], ['Moons', '146']],
+      [['Radio', '58.232 km'], ['Distancia media', '9,54 UA'], ['Año', '29,46 años'], ['Día', '10 h 33 min'], ['Lunas', '146']]),
   },
   {
-    name: 'Urano', r: 9, dist: 480, period: 30688.5, L0: 313.23, inc: 0.77, node: 74.0,
+    key: 'Urano', name: L('Uranus', 'Urano'), r: 9, dist: 480, period: 30688.5, L0: 313.23, inc: 0.77, node: 74.0,
     color: ['#e0fdff', '#76c0d1'],
     ring: { tilt: 97.8, bands: [[1.6, 1.66, 'rgba(200,230,240,0.35)'], [1.95, 2.02, 'rgba(200,230,240,0.5)']] },
-    desc: 'Gigante de hielo que gira "acostado": su eje está inclinado casi 98°.',
-    facts: [['Radio', '25.362 km'], ['Distancia media', '19,19 UA'], ['Año', '84 años'], ['Día', '17 h 14 min (retrógrado)'], ['Lunas', '28']],
+    desc: L('An ice giant that spins "lying on its side": its axis is tilted almost 98°.',
+      'Gigante de hielo que gira "acostado": su eje está inclinado casi 98°.'),
+    facts: L(
+      [['Radius', '25,362 km'], ['Mean distance', '19.19 AU'], ['Year', '84 years'], ['Day', '17 h 14 min (retrograde)'], ['Moons', '28']],
+      [['Radio', '25.362 km'], ['Distancia media', '19,19 UA'], ['Año', '84 años'], ['Día', '17 h 14 min (retrógrado)'], ['Lunas', '28']]),
   },
   {
-    name: 'Neptuno', r: 8.6, dist: 560, period: 60182, L0: 304.88, inc: 1.77, node: 131.8,
+    key: 'Neptuno', name: L('Neptune', 'Neptuno'), r: 8.6, dist: 560, period: 60182, L0: 304.88, inc: 1.77, node: 131.8,
     color: ['#a3c1ff', '#2a49c2'],
     bands: [[-0.25, 0.08, '#3a5dd0', 0.45], [-0.45, 0.04, '#1c2f8a', 0.6]],
-    desc: 'El planeta más lejano, con los vientos más rápidos del sistema solar (2.100 km/h).',
-    facts: [['Radio', '24.622 km'], ['Distancia media', '30,07 UA'], ['Año', '164,8 años'], ['Día', '16 h 6 min'], ['Lunas', '16']],
+    desc: L('The farthest planet, with the fastest winds in the Solar System (2,100 km/h).',
+      'El planeta más lejano, con los vientos más rápidos del sistema solar (2.100 km/h).'),
+    facts: L(
+      [['Radius', '24,622 km'], ['Mean distance', '30.07 AU'], ['Year', '164.8 years'], ['Day', '16 h 6 min'], ['Moons', '16']],
+      [['Radio', '24.622 km'], ['Distancia media', '30,07 UA'], ['Año', '164,8 años'], ['Día', '16 h 6 min'], ['Lunas', '16']]),
   },
 ];
 
 const MOONS = [
-  { name: 'Luna', parent: 'Tierra', r: 1.6, dist: 12, period: 27.32, color: ['#f2f2f2', '#858585'] },
-  { name: 'Fobos', parent: 'Marte', r: 0.6, dist: 6.5, period: 0.319, color: ['#c9b9a6', '#6b5d4f'] },
-  { name: 'Deimos', parent: 'Marte', r: 0.5, dist: 8.5, period: 1.263, color: ['#d6c8b6', '#776858'] },
-  { name: 'Ío', parent: 'Júpiter', r: 1.5, dist: 23, period: 1.769, color: ['#fff3a0', '#c6a136'] },
-  { name: 'Europa', parent: 'Júpiter', r: 1.3, dist: 28, period: 3.551, color: ['#f6f0e6', '#a69884'] },
-  { name: 'Ganímedes', parent: 'Júpiter', r: 2.1, dist: 34, period: 7.155, color: ['#dbd2c6', '#7a6f63'] },
-  { name: 'Calisto', parent: 'Júpiter', r: 1.9, dist: 42, period: 16.689, color: ['#b8ab9b', '#584e46'] },
-  { name: 'Titán', parent: 'Saturno', r: 2, dist: 42, period: 15.945, color: ['#ffd68f', '#bd8737'] },
-  { name: 'Titania', parent: 'Urano', r: 1.1, dist: 24, period: 8.706, color: ['#d9d3cc', '#77706a'] },
-  { name: 'Tritón', parent: 'Neptuno', r: 1.4, dist: 17, period: -5.877, color: ['#f3e6e0', '#8f7d78'] },
-  { name: 'Caronte', parent: 'Plutón', r: 0.8, dist: 4.5, period: 6.387, color: ['#d8d2cc', '#6f6862'] },
+  { key: 'Luna', name: L('Moon', 'Luna'), parent: 'Tierra', r: 1.6, dist: 12, period: 27.32, color: ['#f2f2f2', '#858585'] },
+  { key: 'Fobos', name: L('Phobos', 'Fobos'), parent: 'Marte', r: 0.6, dist: 6.5, period: 0.319, color: ['#c9b9a6', '#6b5d4f'] },
+  { key: 'Deimos', name: 'Deimos', parent: 'Marte', r: 0.5, dist: 8.5, period: 1.263, color: ['#d6c8b6', '#776858'] },
+  { key: 'Ío', name: L('Io', 'Ío'), parent: 'Júpiter', r: 1.5, dist: 23, period: 1.769, color: ['#fff3a0', '#c6a136'] },
+  { key: 'Europa', name: 'Europa', parent: 'Júpiter', r: 1.3, dist: 28, period: 3.551, color: ['#f6f0e6', '#a69884'] },
+  { key: 'Ganímedes', name: L('Ganymede', 'Ganímedes'), parent: 'Júpiter', r: 2.1, dist: 34, period: 7.155, color: ['#dbd2c6', '#7a6f63'] },
+  { key: 'Calisto', name: L('Callisto', 'Calisto'), parent: 'Júpiter', r: 1.9, dist: 42, period: 16.689, color: ['#b8ab9b', '#584e46'] },
+  { key: 'Titán', name: L('Titan', 'Titán'), parent: 'Saturno', r: 2, dist: 42, period: 15.945, color: ['#ffd68f', '#bd8737'] },
+  { key: 'Titania', name: 'Titania', parent: 'Urano', r: 1.1, dist: 24, period: 8.706, color: ['#d9d3cc', '#77706a'] },
+  { key: 'Tritón', name: L('Triton', 'Tritón'), parent: 'Neptuno', r: 1.4, dist: 17, period: -5.877, color: ['#f3e6e0', '#8f7d78'] },
+  { key: 'Caronte', name: L('Charon', 'Caronte'), parent: 'Plutón', r: 0.8, dist: 4.5, period: 6.387, color: ['#d8d2cc', '#6f6862'] },
 ];
 
 // Datos físicos reales (usados por el laboratorio de impactos).
@@ -178,55 +208,67 @@ function mapVec(x, y, z, out) {
 const dateToDays = (y, m, d) => (Date.UTC(y, m - 1, d) - J2000) / DAY_MS;
 
 // Elementos orbitales aproximados: a (UA), e, i, nodo, argumento del perihelio (°), fecha del perihelio.
+const R_ = L('Radius', 'Radio'), M_ = L('Moons', 'Lunas');
 const DWARFS = [
   {
-    name: 'Ceres', r: 1.3, a: 2.767, e: 0.0785, i: 10.59, node: 80.27, peri: 73.6, Tp: dateToDays(2022, 12, 7),
+    key: 'Ceres', name: 'Ceres', r: 1.3, a: 2.767, e: 0.0785, i: 10.59, node: 80.27, peri: 73.6, Tp: dateToDays(2022, 12, 7),
     color: ['#d4cdc4', '#69635c'],
-    desc: 'El objeto más grande del cinturón de asteroides y el único planeta enano del sistema solar interior.',
-    facts: [['Radio', '470 km'], ['Lunas', '0']],
+    desc: L('The largest object in the asteroid belt and the only dwarf planet in the inner Solar System.',
+      'El objeto más grande del cinturón de asteroides y el único planeta enano del sistema solar interior.'),
+    facts: [[R_, '470 km'], [M_, '0']],
   },
   {
-    name: 'Plutón', r: 1.7, a: 39.48, e: 0.2488, i: 17.16, node: 110.3, peri: 113.83, Tp: dateToDays(1989, 9, 5),
+    key: 'Plutón', name: L('Pluto', 'Plutón'), r: 1.7, a: 39.48, e: 0.2488, i: 17.16, node: 110.3, peri: 113.83, Tp: dateToDays(1989, 9, 5),
     color: ['#f3dfc8', '#97704f'],
-    desc: 'Fue el noveno planeta hasta 2006; tiene un enorme glaciar de nitrógeno con forma de corazón.',
-    facts: [['Radio', '1.188 km'], ['Lunas', '5']],
+    desc: L('It was the ninth planet until 2006; it has a huge heart-shaped nitrogen glacier.',
+      'Fue el noveno planeta hasta 2006; tiene un enorme glaciar de nitrógeno con forma de corazón.'),
+    facts: [[R_, L('1,188 km', '1.188 km')], [M_, '5']],
   },
   {
-    name: 'Haumea', r: 1.4, a: 43.12, e: 0.195, i: 28.2, node: 122.0, peri: 239.0, Tp: dateToDays(2133, 1, 1),
+    key: 'Haumea', name: 'Haumea', r: 1.4, a: 43.12, e: 0.195, i: 28.2, node: 122.0, peri: 239.0, Tp: dateToDays(2133, 1, 1),
     color: ['#f6f6f6', '#9aa0a8'],
-    desc: 'Gira tan rápido (3,9 horas) que tiene forma de elipsoide alargado; posee un anillo.',
-    facts: [['Radio', '~780 km'], ['Lunas', '2']],
+    desc: L('It spins so fast (3.9 hours) that it is shaped like an elongated ellipsoid; it has a ring.',
+      'Gira tan rápido (3,9 horas) que tiene forma de elipsoide alargado; posee un anillo.'),
+    facts: [[R_, '~780 km'], [M_, '2']],
   },
   {
-    name: 'Makemake', r: 1.4, a: 45.43, e: 0.161, i: 28.98, node: 79.6, peri: 294.8, Tp: dateToDays(1880, 6, 1),
+    key: 'Makemake', name: 'Makemake', r: 1.4, a: 45.43, e: 0.161, i: 28.98, node: 79.6, peri: 294.8, Tp: dateToDays(1880, 6, 1),
     color: ['#f2cbad', '#a2654a'],
-    desc: 'Uno de los objetos más brillantes del cinturón de Kuiper, cubierto de hielo de metano.',
-    facts: [['Radio', '715 km'], ['Lunas', '1']],
+    desc: L('One of the brightest objects in the Kuiper belt, covered in methane ice.',
+      'Uno de los objetos más brillantes del cinturón de Kuiper, cubierto de hielo de metano.'),
+    facts: [[R_, '715 km'], [M_, '1']],
   },
   {
-    name: 'Eris', r: 1.7, a: 67.86, e: 0.4361, i: 44.04, node: 35.95, peri: 151.64, Tp: dateToDays(2257, 1, 1),
+    key: 'Eris', name: 'Eris', r: 1.7, a: 67.86, e: 0.4361, i: 44.04, node: 35.95, peri: 151.64, Tp: dateToDays(2257, 1, 1),
     color: ['#f8f8f8', '#a2a2a2'],
-    desc: 'Su descubrimiento en 2005 llevó a redefinir qué es un planeta; está cerca de su afelio (~96 UA).',
-    facts: [['Radio', '1.163 km'], ['Lunas', '1']],
+    desc: L('Its discovery in 2005 led to redefining what a planet is; it is near aphelion (~96 AU).',
+      'Su descubrimiento en 2005 llevó a redefinir qué es un planeta; está cerca de su afelio (~96 UA).'),
+    facts: [[R_, L('1,163 km', '1.163 km')], [M_, '1']],
   },
 ];
 
 const COMETS = [
   { name: 'Halley', a: 17.83, e: 0.967, i: 162.26, node: 58.42, peri: 111.33, Tp: dateToDays(1986, 2, 9),
-    desc: 'El cometa más famoso: visible a simple vista cada ~76 años. Su próxima visita será en 2061.' },
+    desc: L('The most famous comet: visible to the naked eye every ~76 years. Its next visit will be in 2061.',
+      'El cometa más famoso: visible a simple vista cada ~76 años. Su próxima visita será en 2061.') },
   { name: 'Encke', a: 2.215, e: 0.848, i: 11.78, node: 334.57, peri: 186.55, Tp: dateToDays(2023, 10, 22),
-    desc: 'El cometa de periodo más corto conocido (3,3 años); origen de la lluvia de meteoros Táuridas.' },
+    desc: L('The comet with the shortest known period (3.3 years); source of the Taurid meteor shower.',
+      'El cometa de periodo más corto conocido (3,3 años); origen de la lluvia de meteoros Táuridas.') },
   { name: '67P/Churyumov-Gerasimenko', a: 3.46, e: 0.641, i: 7.04, node: 50.14, peri: 12.78, Tp: dateToDays(2021, 11, 2),
-    desc: 'Visitado por la sonda Rosetta, que en 2014 posó el módulo Philae sobre su núcleo.' },
+    desc: L('Visited by the Rosetta probe, which landed the Philae module on its nucleus in 2014.',
+      'Visitado por la sonda Rosetta, que en 2014 posó el módulo Philae sobre su núcleo.') },
   { name: 'Tempel-Tuttle', a: 10.33, e: 0.906, i: 162.49, node: 235.27, peri: 172.5, Tp: dateToDays(1998, 2, 28),
-    desc: 'Progenitor de la lluvia de meteoros de las Leónidas (noviembre).' },
+    desc: L('Parent of the Leonid meteor shower (November).', 'Progenitor de la lluvia de meteoros de las Leónidas (noviembre).') },
   { name: 'Swift-Tuttle', a: 26.09, e: 0.963, i: 113.45, node: 139.38, peri: 152.98, Tp: dateToDays(1992, 12, 12),
-    desc: 'Progenitor de las Perseidas (agosto); su núcleo mide unos 26 km.' },
+    desc: L('Parent of the Perseids (August); its nucleus is about 26 km across.', 'Progenitor de las Perseidas (agosto); su núcleo mide unos 26 km.') },
   { name: 'Hale-Bopp', a: 186, e: 0.995, i: 89.43, node: 282.47, peri: 130.59, Tp: dateToDays(1997, 4, 1),
-    desc: 'El Gran Cometa de 1997, visible a simple vista durante un récord de 18 meses.' },
+    desc: L('The Great Comet of 1997, visible to the naked eye for a record 18 months.',
+      'El Gran Cometa de 1997, visible a simple vista durante un récord de 18 meses.') },
   { name: 'NEOWISE', a: 358, e: 0.99918, i: 128.94, node: 61.01, peri: 37.28, Tp: dateToDays(2020, 7, 3),
-    desc: 'El gran cometa de 2020, visible a simple vista desde ambos hemisferios.' },
+    desc: L('The great comet of 2020, visible to the naked eye from both hemispheres.',
+      'El gran cometa de 2020, visible a simple vista desde ambos hemisferios.') },
 ];
+for (const c of COMETS) c.key = c.name;
 
 function setupKepler(o) {
   o.P = 365.256 * Math.pow(o.a, 1.5);
@@ -290,19 +332,22 @@ function buildKeplerOrbit(o) {
   }
 }
 
-const fmtNum = (v, d = 2) => v.toLocaleString('es-CL', { maximumFractionDigits: d });
+// Números y fechas con las convenciones del idioma activo (6,371 / 6.371).
+const fmtNum = (v, d = 2) => v.toLocaleString(LOCALE, { maximumFractionDigits: d });
+const AU = L('AU', 'UA');
 const fmtYears = (days) => {
   const y = days / 365.256;
-  return y < 1000 ? `${fmtNum(y, 1)} años` : `~${fmtNum(Math.round(y / 100) * 100, 0)} años`;
+  return y < 1000 ? `${fmtNum(y, 1)} ${L('years', 'años')}` : `~${fmtNum(Math.round(y / 100) * 100, 0)} ${L('years', 'años')}`;
 };
-const longDate = new Intl.DateTimeFormat('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+const longDate = new Intl.DateTimeFormat(LOCALE, { year: 'numeric', month: 'long', day: 'numeric' });
 
 for (const d of DWARFS) {
   setupKepler(d);
   buildKeplerOrbit(d);
   d.type = 'dwarf';
   d.swatch = d.color[1];
-  d.facts = [...d.facts, ['Semieje mayor', `${fmtNum(d.a)} UA`], ['Periodo orbital', fmtYears(d.P)], ['Excentricidad', fmtNum(d.e, 3)]];
+  d.facts = [...d.facts, [L('Semi-major axis', 'Semieje mayor'), `${fmtNum(d.a)} ${AU}`],
+    [L('Orbital period', 'Periodo orbital'), fmtYears(d.P)], [L('Eccentricity', 'Excentricidad'), fmtNum(d.e, 3)]];
 }
 for (const c of COMETS) {
   setupKepler(c);
@@ -312,12 +357,12 @@ for (const c of COMETS) {
   c.swatch = '#8fd0ff';
   c.color = ['#ffffff', '#9fc8ff'];
   c.facts = [
-    ['Periodo orbital', fmtYears(c.P)],
-    ['Perihelio', `${fmtNum(c.a * (1 - c.e))} UA`],
-    ['Afelio', `${fmtNum(c.a * (1 + c.e), 1)} UA`],
-    ['Excentricidad', fmtNum(c.e, 4)],
-    ['Inclinación', `${fmtNum(c.i, 1)}°${c.i > 90 ? ' (retrógrada)' : ''}`],
-    ['Próximo perihelio', () => longDate.format(new Date(J2000 + (c.Tp + Math.ceil((sim.days - c.Tp) / c.P) * c.P) * DAY_MS))],
+    [L('Orbital period', 'Periodo orbital'), fmtYears(c.P)],
+    [L('Perihelion', 'Perihelio'), `${fmtNum(c.a * (1 - c.e))} ${AU}`],
+    [L('Aphelion', 'Afelio'), `${fmtNum(c.a * (1 + c.e), 1)} ${AU}`],
+    [L('Eccentricity', 'Excentricidad'), fmtNum(c.e, 4)],
+    [L('Inclination', 'Inclinación'), `${fmtNum(c.i, 1)}°${c.i > 90 ? L(' (retrograde)', ' (retrógrada)') : ''}`],
+    [L('Next perihelion', 'Próximo perihelio'), () => longDate.format(new Date(J2000 + (c.Tp + Math.ceil((sim.days - c.Tp) / c.P) * c.P) * DAY_MS))],
   ];
 }
 
@@ -331,17 +376,19 @@ for (const b of [SUN, ...PLANETS, ...DWARFS, ...COMETS]) {
   b.hp = { x: 0, y: 0, z: 0 };
   b.hv = { x: 0, y: 0, z: 0 };
   b.r0 = b.r;
-  if (PHYS[b.name]) Object.assign(b, PHYS[b.name]);
+  if (PHYS[b.key]) Object.assign(b, PHYS[b.key]);
 }
 for (const m of MOONS) {
   m.type = 'moon';
-  m.parentBody = [...PLANETS, ...DWARFS].find((p) => p.name === m.parent);
+  m.parentBody = [...PLANETS, ...DWARFS].find((p) => p.key === m.parent);
   m.phase0 = rand() * TAU;
   m.x = m.y = m.z = 0;
-  m.desc = `Satélite natural de ${m.parent}.`;
-  m.facts = [['Orbita a', m.parent], ['Periodo orbital', `${Math.abs(m.period).toLocaleString('es-CL')} días${m.period < 0 ? ' (retrógrado)' : ''}`]];
-  m.realKm = MOON_KM[m.name];
-  [m.mass, m.radius] = MOON_PHYS[m.name];
+  const par = m.parentBody.name;
+  m.desc = L(`Natural satellite of ${par}.`, `Satélite natural de ${par}.`);
+  m.facts = [[L('Orbits', 'Orbita a'), par], [L('Orbital period', 'Periodo orbital'),
+    `${fmtNum(Math.abs(m.period), 3)} ${L('days', 'días')}${m.period < 0 ? L(' (retrograde)', ' (retrógrado)') : ''}`]];
+  m.realKm = MOON_KM[m.key];
+  [m.mass, m.radius] = MOON_PHYS[m.key];
   m.r0 = m.r;
 }
 // Listas dinámicas: el laboratorio de impactos agrega y quita cuerpos.
@@ -637,6 +684,7 @@ function updateCamera(dt) {
     cam.tz = cam.from.z + (f.z - cam.from.z) * e;
   }
   cam.dist += (cam.tdist - cam.dist) * Math.min(1, dt * 4);
+  if (zoomHold) zoomBy(Math.exp(zoomHold * dt * 2.2));
   Galaxy.updateCamera(dt);
   cyaw = Math.cos(cam.yaw); syaw = Math.sin(cam.yaw);
   cpit = Math.cos(cam.pitch); spit = Math.sin(cam.pitch);
@@ -686,11 +734,11 @@ function prepareComet(c) {
   c.comaR = Math.max(1.2, Math.min(40, ((1 + 4 * act) * focal) / c.vz));
   c.tail = false;
   if (act < 0.01) return;
-  const L = 110 * act;
+  const tail = 110 * act; // largo de la cola en unidades de escena
   const rx = c.x - SUN.x, ry = c.y - SUN.y, rz = c.z - SUN.z;
   const d = Math.hypot(rx, ry, rz) || 1;
   const ax = rx / d, ay = ry / d, az = rz / d;
-  toView(c.x + ax * L, c.y + ay * L, c.z + az * L);
+  toView(c.x + ax * tail, c.y + ay * tail, c.z + az * tail);
   if (V.z < NEAR) return;
   c.isx = cx + (V.x * focal) / V.z; c.isy = cy - (V.y * focal) / V.z;
 
@@ -698,9 +746,9 @@ function prepareComet(c) {
   const vl = Math.hypot(vx, vy, vz) || 1;
   vx /= vl; vy /= vl; vz /= vl;
   const dx = ax - vx * 0.6, dy = ay - vy * 0.6, dz = az - vz * 0.6;
-  const Ld = (L * 0.75) / (Math.hypot(dx, dy, dz) || 1);
+  const Ld = (tail * 0.75) / (Math.hypot(dx, dy, dz) || 1);
   // Punto de control a media cola, más cerca de la dirección antisolar, para curvarla.
-  toView(c.x + ax * L * 0.4, c.y + ay * L * 0.4, c.z + az * L * 0.4);
+  toView(c.x + ax * tail * 0.4, c.y + ay * tail * 0.4, c.z + az * tail * 0.4);
   if (V.z < NEAR) return;
   c.dcx = cx + (V.x * focal) / V.z; c.dcy = cy - (V.y * focal) / V.z;
   toView(c.x + dx * Ld, c.y + dy * Ld, c.z + dz * Ld);
@@ -1105,10 +1153,15 @@ function drawBin(bin) {
 }
 
 /* ------------------------------ Etiquetas ------------------------------ */
+// Verde fluorescente con un leve resplandor de neón (también lo usa galaxy.js).
+const LABEL_GREEN = '57,255,20';
 function drawLabels(sorted) {
+  ctx.save();
   ctx.font = '12px Consolas, "Cascadia Mono", Menlo, "Courier New", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
+  ctx.shadowColor = `rgba(${LABEL_GREEN},0.7)`;
+  ctx.shadowBlur = 6;
   // Prioridad: cuerpo seguido, Sol, planetas y luego lunas; se omiten etiquetas que se solapan.
   const RANK = { sun: 1, blackhole: 1, planet: 2, dwarf: 3, comet: 3, moon: 4 };
   const rank = (b) => (b === cam.follow ? 0 : RANK[b.type]);
@@ -1121,9 +1174,13 @@ function drawLabels(sorted) {
     const box = { x0: b.sx - w / 2, x1: b.sx + w / 2, y0: y - 14, y1: y };
     if (placed.some((p) => box.x0 < p.x1 && box.x1 > p.x0 && box.y0 < p.y1 && box.y1 > p.y0)) continue;
     placed.push(box);
-    ctx.fillStyle = cam.follow === b ? '#ffd28a' : b.type === 'moon' ? 'rgba(200,210,230,0.65)' : 'rgba(235,240,255,0.85)';
+    // El cuerpo seguido va más brillante y en negrita; las lunas, más tenues.
+    const followed = cam.follow === b;
+    ctx.font = `${followed ? 'bold ' : ''}12px Consolas, "Cascadia Mono", Menlo, "Courier New", monospace`;
+    ctx.fillStyle = followed ? `rgb(${LABEL_GREEN})` : `rgba(${LABEL_GREEN},${b.type === 'moon' ? 0.6 : 0.9})`;
     ctx.fillText(b.name, b.sx, y);
   }
+  ctx.restore();
 }
 
 /* -------------------------------- Bucle -------------------------------- */
@@ -1185,7 +1242,7 @@ function frame(now) {
 /* ------------------------------ Interfaz ------------------------------- */
 const $ = (id) => document.getElementById(id);
 const dateEl = $('date'), speedLabel = $('speed-label');
-const dateFmt = new Intl.DateTimeFormat('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+const dateFmt = new Intl.DateTimeFormat(LOCALE, { year: 'numeric', month: 'long', day: 'numeric' });
 let lastDayShown = null;
 
 function updateHud() {
@@ -1201,16 +1258,16 @@ function updateHud() {
   if (day !== lastDayShown) {
     lastDayShown = day;
     const d = new Date(J2000 + sim.days * DAY_MS);
-    dateEl.textContent = isNaN(d) ? 'fuera de rango' : dateFmt.format(d);
+    dateEl.textContent = isNaN(d) ? L('out of range', 'fuera de rango') : dateFmt.format(d);
     for (const { el, fn } of liveFacts) el.textContent = fn();
   }
   if (infoBody && infoBody.live && !$('info').hidden) {
-    $('info-live').textContent = `${fmtNum(infoBody.au)} UA`;
+    $('info-live').textContent = `${fmtNum(infoBody.au)} ${AU}`;
   }
   const slow = Impacts.timeScale();
-  const label = sim.paused ? 'En pausa'
-    : slow != null ? `Cámara lenta · ${fmtSpeed(slow)}`
-    : `Velocidad: ${fmtSpeed(sim.speed)}`;
+  const label = sim.paused ? L('Paused', 'En pausa')
+    : slow != null ? `${L('Slow motion', 'Cámara lenta')} · ${fmtSpeed(slow)}`
+    : `${L('Speed', 'Velocidad')}: ${fmtSpeed(sim.speed)}`;
   if (speedLabel.textContent !== label) speedLabel.textContent = label;
 }
 
@@ -1218,11 +1275,12 @@ function speedFromSlider(v) {
   return 0.02 * Math.pow(10, v / 20); // 0,02 – 2000 días/s
 }
 function fmtSpeed(d) {
-  if (d < 1 / 24) return `${(d * 1440).toFixed(1)} min/s`;
-  if (d < 1) return `${(d * 24).toFixed(1)} horas/s`;
-  if (d < 60) return `${d.toFixed(1)} días/s`;
-  if (d < 730) return `${(d / 30.44).toFixed(1)} meses/s`;
-  return `${(d / 365.25).toFixed(1)} años/s`;
+  const f = (x) => fmtNum(x, 1);
+  if (d < 1 / 24) return `${f(d * 1440)} min/s`;
+  if (d < 1) return `${f(d * 24)} ${L('hours/s', 'horas/s')}`;
+  if (d < 60) return `${f(d)} ${L('days/s', 'días/s')}`;
+  if (d < 730) return `${f(d / 30.44)} ${L('months/s', 'meses/s')}`;
+  return `${f(d / 365.25)} ${L('years/s', 'años/s')}`;
 }
 function refreshSpeed() {
   sim.speed = speedFromSlider(+$('speed').value);
@@ -1231,7 +1289,7 @@ $('speed').addEventListener('input', refreshSpeed);
 
 function togglePause() {
   sim.paused = !sim.paused;
-  $('pause').textContent = sim.paused ? '▶ Reanudar' : '⏸ Pausa';
+  $('pause').textContent = sim.paused ? L('▶ Resume', '▶ Reanudar') : T('pause');
   $('pause').classList.toggle('active', sim.paused);
   refreshSpeed();
 }
@@ -1254,14 +1312,14 @@ bindCheck('opt-dwarfs', (v) => (opts.dwarfs = v));
 
 // Selector de planetas enanos y cometas
 const others = $('others');
-for (const [label, list] of [['Planetas enanos', DWARFS], ['Cometas', COMETS]]) {
+for (const [label, list] of [[L('Dwarf planets', 'Planetas enanos'), DWARFS], [L('Comets', 'Cometas'), COMETS]]) {
   const group = document.createElement('optgroup');
   group.label = label;
-  for (const b of list) group.appendChild(new Option(b.name, b.name));
+  for (const b of list) group.appendChild(new Option(b.name, b.key));
   others.appendChild(group);
 }
 others.addEventListener('change', () => {
-  const b = KEPLERIAN.find((o) => o.name === others.value);
+  const b = KEPLERIAN.find((o) => o.key === others.value);
   if (b) {
     // Al elegir un objeto oculto, se vuelve a mostrar su grupo.
     const id = b.type === 'comet' ? 'opt-comets' : 'opt-dwarfs';
@@ -1301,7 +1359,7 @@ function showInfo(b) {
     dl.append(dt, dd);
     return dd;
   };
-  if (b.live) addRow('Distancia al Sol', '').id = 'info-live';
+  if (b.live) addRow(L('Distance from the Sun', 'Distancia al Sol'), '').id = 'info-live';
   for (const [k, v] of b.facts) {
     if (typeof v === 'function') liveFacts.push({ el: addRow(k, v()), fn: v });
     else addRow(k, v);
@@ -1400,6 +1458,25 @@ canvas.addEventListener('pointercancel', endPointer);
 function zoomBy(f) {
   cam.tdist = Math.max(minDist(), Math.min(Galaxy.MAX_DIST, cam.tdist * f));
 }
+
+// Botones de zoom táctiles: un toque da un paso; mantenerlo pulsado hace zoom continuo
+// (lo aplica updateCamera mientras zoomHold ≠ 0: −1 acerca, +1 aleja).
+let zoomHold = 0;
+let zoomHoldTimer = 0;
+function bindZoomButton(id, dir) {
+  const b = $(id);
+  const stop = () => { zoomHold = 0; clearTimeout(zoomHoldTimer); };
+  b.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    zoomBy(dir > 0 ? 1.35 : 1 / 1.35);
+    clearTimeout(zoomHoldTimer);
+    zoomHoldTimer = setTimeout(() => { zoomHold = dir; }, 300);
+  });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, stop);
+  b.addEventListener('contextmenu', (e) => e.preventDefault()); // sin menú al mantener pulsado
+}
+bindZoomButton('zoom-in', -1);
+bindZoomButton('zoom-out', 1);
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
   zoomBy(Math.exp(e.deltaY * 0.0012));
@@ -1425,17 +1502,44 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); togglePause(); }
   else if (e.key === 'Escape') resetView();
   else if (e.key === 'g' || e.key === 'G') Galaxy.toggle();
+  else if (e.key === '+' || e.key === '=') zoomBy(1 / 1.35);
+  else if (e.key === '-' || e.key === '_') zoomBy(1.35);
   else if (/^[0-8]$/.test(e.key)) focusOn(e.key === '0' ? SUN : PLANETS[+e.key - 1]);
 });
 
 refreshSpeed();
-// Permite abrir directamente un cuerpo con un enlace, p. ej. index.html#Saturno
-const initial = BODIES.find((b) => b.name === decodeURIComponent(location.hash.slice(1)));
+// Permite abrir directamente un cuerpo con un enlace, p. ej. index.html#Saturn o #Saturno
+// (vale el nombre en cualquiera de los dos idiomas, sin distinguir mayúsculas).
+const BODY_EN = {
+  Sol: 'Sun', Mercurio: 'Mercury', Tierra: 'Earth', Marte: 'Mars', 'Júpiter': 'Jupiter', Saturno: 'Saturn',
+  Urano: 'Uranus', Neptuno: 'Neptune', 'Plutón': 'Pluto', Luna: 'Moon', Fobos: 'Phobos', 'Ío': 'Io',
+  'Ganímedes': 'Ganymede', Calisto: 'Callisto', 'Titán': 'Titan', 'Tritón': 'Triton', Caronte: 'Charon',
+};
+const hashName = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+const initial = hashName && BODIES.find((b) => b.key.toLowerCase() === hashName || b.name.toLowerCase() === hashName
+  || (BODY_EN[b.key] || '').toLowerCase() === hashName);
 if (initial) {
   focusOn(initial);
   cam.blend = 1;
   cam.dist = cam.tdist;
 }
+// Panel plegable en tabletas y teléfonos (en escritorio está siempre visible).
+const panelToggle = $('panel-toggle');
+const isCompact = () => window.matchMedia('(max-width: 1100px)').matches;
+function setPanelOpen(open) {
+  document.body.classList.toggle('panel-open', open);
+  panelToggle.setAttribute('aria-expanded', String(open));
+  panelToggle.textContent = open ? L('✕ Close', '✕ Cerrar') : T('panel.toggle');
+}
+panelToggle.addEventListener('click', () => setPanelOpen(!document.body.classList.contains('panel-open')));
+// Acciones que muestran algo en la escena cierran el panel para dejarla a la vista.
+document.addEventListener('click', (e) => {
+  if (isCompact() && e.target.closest?.('button[data-closes-panel]')) setPanelOpen(false);
+});
+document.addEventListener('change', (e) => {
+  if (isCompact() && e.target.matches?.('select[data-closes-panel]')) setPanelOpen(false);
+});
+
 // Bienvenida: se muestra al abrir la app, salvo que se haya pedido no volver a
 // mostrarla o que se entre con un enlace directo (#Saturno, #escenario=N).
 (function welcome() {
@@ -1454,6 +1558,7 @@ if (initial) {
   $('welcome-lab').addEventListener('click', () => {
     close();
     document.querySelector('.tabs button[data-tab="lab"]').click();
+    if (isCompact()) setPanelOpen(true);
   });
   box.addEventListener('click', (e) => { if (e.target === box) close(); });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !box.hidden) close(); });
