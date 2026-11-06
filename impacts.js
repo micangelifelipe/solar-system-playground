@@ -108,73 +108,79 @@ const Impacts = (() => {
     if (s < 120) return `${fmtNum(s, 0)} s`;
     if (s < 7200) return `${fmtNum(s / 60, 0)} min`;
     if (s < 2 * DAY_S) return `${fmtNum(s / 3600, 1)} h`;
-    if (s < 2 * YEAR * DAY_S) return `${fmtNum(s / DAY_S, 0)} días`;
-    return `${sci(s / (YEAR * DAY_S))} años`;
+    if (s < 2 * YEAR * DAY_S) return `${fmtNum(s / DAY_S, 0)} ${L('days', 'días')}`;
+    return `${sci(s / (YEAR * DAY_S))} ${L('years', 'años')}`;
   }
   // Severidad visual de un impacto en el Sol: según cuántos segundos de luminosidad solar libera.
   const solarSev = (E) => clamp((Math.log10(E / L_SUN) + 4) / 10, 0.05, 1);
   function fmtRel(d) {
-    if (d < 1 / 1440) return 'ahora';
+    if (d < 1 / 1440) return L('now', 'ahora');
     if (d < 1 / 24) return `+${Math.round(d * 1440)} min`;
     if (d < 1) return `+${fmtNum(d * 24, 1)} h`;
-    if (d < 60) return `+${fmtNum(d, 1)} días`;
-    if (d < 730) return `+${fmtNum(d / 30.44, 1)} meses`;
-    return `+${fmtNum(d / YEAR, 1)} años`;
+    if (d < 60) return `+${fmtNum(d, 1)} ${L('days', 'días')}`;
+    if (d < 730) return `+${fmtNum(d / 30.44, 1)} ${L('months', 'meses')}`;
+    return `+${fmtNum(d / YEAR, 1)} ${L('years', 'años')}`;
   }
   function equiv(E) {
-    if (E < 1e21) return `≈ ${sci(E / HIROSHIMA)} bombas de Hiroshima`;
+    if (E < 1e21) return `≈ ${sci(E / HIROSHIMA)} ${L('Hiroshima bombs', 'bombas de Hiroshima')}`;
     return `≈ ${sci(E / CHICXULUB)} × Chicxulub`;
   }
   const MASS_REFS = [
-    [1.6e15, 'del monte Everest'], [9.39e20, 'de Ceres'], [7.35e22, 'de la Luna'],
-    [5.97e24, 'de la Tierra'], [1.898e27, 'de Júpiter'], [M_SUN, 'del Sol'],
+    [1.6e15, L('Mount Everest', 'del monte Everest')], [9.39e20, L('Ceres', 'de Ceres')], [7.35e22, L('the Moon', 'de la Luna')],
+    [5.97e24, L('the Earth', 'de la Tierra')], [1.898e27, L('Jupiter', 'de Júpiter')], [M_SUN, L('the Sun', 'del Sol')],
   ];
   function massEquiv(M) {
     let ref = MASS_REFS[0];
     for (const r of MASS_REFS) if (r[0] <= M * 1.0001) ref = r;
     const k = M / ref[0];
-    return Math.abs(k - 1) < 0.05 ? `la masa ${ref[1]}` : `${sci(k)} veces la masa ${ref[1]}`;
+    if (Math.abs(k - 1) < 0.05) return L(`the mass of ${ref[1]}`, `la masa ${ref[1]}`);
+    return L(`${sci(k)} times the mass of ${ref[1]}`, `${sci(k)} veces la masa ${ref[1]}`);
   }
 
   /* ----------------------- Tipos y escenarios -------------------------- */
   // Tamaños en metros; densidades en kg/m³.
   const TYPES = {
-    meteor: { name: 'Meteoro', rho: 3300, size: [0.5, 200], color: ['#b9ab9b', '#4d453e'] },
-    asteroid: { name: 'Asteroide', rho: 3000, size: [50, 7e6], color: ['#b0a496', '#463e37'] },
-    comet: { name: 'Cometa', rho: 600, size: [300, 2e5], color: ['#eef6ff', '#7d8fa3'] },
-    bh: { name: 'Agujero negro', mass: [1e15, 2e31] },
+    meteor: { name: L('Meteor', 'Meteoro'), rho: 3300, size: [0.5, 200], color: ['#b9ab9b', '#4d453e'] },
+    asteroid: { name: L('Asteroid', 'Asteroide'), rho: 3000, size: [50, 7e6], color: ['#b0a496', '#463e37'] },
+    comet: { name: L('Comet', 'Cometa'), rho: 600, size: [300, 2e5], color: ['#eef6ff', '#7d8fa3'] },
+    bh: { name: L('Black hole', 'Agujero negro'), mass: [1e15, 2e31] },
     sn: { name: 'Supernova', energy: [1e42, 1e46] },
-    evo: { name: 'Evolución del Sol' },
+    evo: { name: L('Sun’s evolution', 'Evolución del Sol') },
   };
 
+  // El objetivo (target) usa la clave fija del cuerpo, no su nombre visible.
   const PRESETS = [
     { name: 'Chelyabinsk (2013)', type: 'meteor', target: 'Tierra', L: 19, v: 19, angle: 18 },
     { name: 'Tunguska (1908)', type: 'meteor', target: 'Tierra', L: 55, v: 20, angle: 35 },
-    { name: 'Chicxulub: fin de los dinosaurios', type: 'asteroid', target: 'Tierra', L: 10000, v: 20, angle: 60 },
-    { name: 'Asteroide que hierve los océanos', type: 'asteroid', target: 'Tierra', L: 5e5, v: 20, angle: 45 },
-    { name: 'Theia: origen de la Luna', type: 'asteroid', target: 'Tierra', L: 6.2e6, v: 12, angle: 45 },
-    { name: 'Destruir la Tierra', type: 'asteroid', target: 'Tierra', L: 7e6, v: 70, angle: 80 },
-    { name: 'Shoemaker-Levy 9 contra Júpiter (1994)', type: 'comet', target: 'Júpiter', L: 1500, v: 60, angle: 45, frags: 6 },
-    { name: 'Cometa contra Marte', type: 'comet', target: 'Marte', L: 20000, v: 55, angle: 45 },
-    { name: 'Destruir Ceres', type: 'asteroid', target: 'Ceres', L: 2e5, v: 15, angle: 70 },
-    { name: 'Agujero negro primordial atraviesa la Tierra', type: 'bh', target: 'Tierra', M: 1e20, v: 200 },
-    { name: 'Agujero negro de masa lunar', type: 'bh', target: 'Tierra', M: 7.35e22, v: 60 },
-    { name: 'Agujero negro de masa joviana: disco de acreción', type: 'bh', target: 'Tierra', M: 1.898e27, v: 10 },
-    { name: 'Agujero negro estelar (10 M☉) contra Júpiter', type: 'bh', target: 'Júpiter', M: 1.989e31, v: 100 },
-    { name: 'Cometa rozador cae al Sol (familia de Kreutz)', type: 'comet', target: 'Sol', L: 2000, v: 620, angle: 30 },
-    { name: 'Asteroide gigante contra el Sol', type: 'asteroid', target: 'Sol', L: 7e6, v: 650, angle: 60 },
-    { name: 'Agujero negro atrapado dentro del Sol', type: 'bh', target: 'Sol', M: 2e27, v: 50 },
-    { name: 'Agujero negro estelar (10 M☉) destroza el Sol', type: 'bh', target: 'Sol', M: 1.989e31, v: 100 },
-    { name: 'El Sol explota como supernova (hipotético)', type: 'sn', target: 'Sol', E: 1e44, fej: 1 },
-    { name: 'Supernova débil: expulsa solo el 30 % de la masa', type: 'sn', target: 'Sol', E: 1e43, fej: 0.3 },
-    { name: 'Evolución real del Sol: gigante roja → enana blanca', type: 'evo', target: 'Sol' },
+    { name: L('Chicxulub: the end of the dinosaurs', 'Chicxulub: fin de los dinosaurios'), type: 'asteroid', target: 'Tierra', L: 10000, v: 20, angle: 60 },
+    { name: L('An asteroid that boils the oceans', 'Asteroide que hierve los océanos'), type: 'asteroid', target: 'Tierra', L: 5e5, v: 20, angle: 45 },
+    { name: L('Theia: origin of the Moon', 'Theia: origen de la Luna'), type: 'asteroid', target: 'Tierra', L: 6.2e6, v: 12, angle: 45 },
+    { name: L('Destroy the Earth', 'Destruir la Tierra'), type: 'asteroid', target: 'Tierra', L: 7e6, v: 70, angle: 80 },
+    { name: L('Shoemaker-Levy 9 vs. Jupiter (1994)', 'Shoemaker-Levy 9 contra Júpiter (1994)'), type: 'comet', target: 'Júpiter', L: 1500, v: 60, angle: 45, frags: 6 },
+    { name: L('A comet hits Mars', 'Cometa contra Marte'), type: 'comet', target: 'Marte', L: 20000, v: 55, angle: 45 },
+    { name: L('Destroy Ceres', 'Destruir Ceres'), type: 'asteroid', target: 'Ceres', L: 2e5, v: 15, angle: 70 },
+    { name: L('A primordial black hole passes through the Earth', 'Agujero negro primordial atraviesa la Tierra'), type: 'bh', target: 'Tierra', M: 1e20, v: 200 },
+    { name: L('A Moon-mass black hole', 'Agujero negro de masa lunar'), type: 'bh', target: 'Tierra', M: 7.35e22, v: 60 },
+    { name: L('A Jupiter-mass black hole: accretion disk', 'Agujero negro de masa joviana: disco de acreción'), type: 'bh', target: 'Tierra', M: 1.898e27, v: 10 },
+    { name: L('A stellar black hole (10 M☉) vs. Jupiter', 'Agujero negro estelar (10 M☉) contra Júpiter'), type: 'bh', target: 'Júpiter', M: 1.989e31, v: 100 },
+    { name: L('A sungrazing comet falls into the Sun (Kreutz family)', 'Cometa rozador cae al Sol (familia de Kreutz)'), type: 'comet', target: 'Sol', L: 2000, v: 620, angle: 30 },
+    { name: L('A giant asteroid hits the Sun', 'Asteroide gigante contra el Sol'), type: 'asteroid', target: 'Sol', L: 7e6, v: 650, angle: 60 },
+    { name: L('A black hole trapped inside the Sun', 'Agujero negro atrapado dentro del Sol'), type: 'bh', target: 'Sol', M: 2e27, v: 50 },
+    { name: L('A stellar black hole (10 M☉) tears the Sun apart', 'Agujero negro estelar (10 M☉) destroza el Sol'), type: 'bh', target: 'Sol', M: 1.989e31, v: 100 },
+    { name: L('The Sun explodes as a supernova (hypothetical)', 'El Sol explota como supernova (hipotético)'), type: 'sn', target: 'Sol', E: 1e44, fej: 1 },
+    { name: L('A weak supernova that ejects only 30% of the mass', 'Supernova débil: expulsa solo el 30 % de la masa'), type: 'sn', target: 'Sol', E: 1e43, fej: 0.3 },
+    { name: L('The real evolution of the Sun: red giant → white dwarf', 'Evolución real del Sol: gigante roja → enana blanca'), type: 'evo', target: 'Sol' },
   ];
 
   /* ------------------------------ Física ------------------------------- */
   const vEsc = (b) => Math.sqrt((2 * G * b.mass) / (b.radius * 1e3)) / 1e3; // km/s
   const bindingEnergy = (b) => (0.6 * G * b.mass * b.mass) / (b.radius * 1e3);
   const sev = (q) => clamp((Math.log10(q) + 16) / 16, 0, 1.25); // severidad 0..1+
-  const nm = (b) => (b.type === 'sun' ? 'el Sol' : b.name);
+  // Nombre para usar dentro de una frase (con artículo cuando corresponde).
+  const nm = (b) => (b.type === 'sun' ? L('the Sun', 'el Sol')
+    : b.key === 'Tierra' ? L('Earth', 'la Tierra') : b.key === 'Luna' ? L('the Moon', 'la Luna') : b.name);
+  // Igual, con mayúscula inicial (para comenzar una frase).
+  const Nm = (b) => { const s = nm(b); return s.charAt(0).toUpperCase() + s.slice(1); };
   const unitTime = (b) => Math.sqrt(b.radius ** 3 / (G_KM * b.mass)); // s
 
   function categorize(q, t, airburst) {
@@ -277,24 +283,55 @@ const Impacts = (() => {
     return A;
   }
 
+  // [nombre, color, descripción(A)] de cada resultado.
   const CATS = {
-    solar: ['Impacto contra el Sol', '#ffd166', (A) => `${A.comet ? 'Un cometa rozador suele evaporarse antes de tocar la fotosfera. ' : ''}Libera la energía que el Sol emite en ${fmtDur(A.Ls)}: un destello, un terremoto solar y una lluvia de plasma. Para el Sol es ${A.Ls < DAY_S ? 'apenas un parpadeo' : 'un aumento de brillo pasajero'}.`],
-    solarpass: ['Atraviesa el Sol', '#ffd166', (A) => (A.captured
-      ? `La fricción dinámica lo frena tanto que queda atrapado dentro del Sol: se hundirá al núcleo y lo devorará desde dentro en ~${sci(A.eatYears)} años.`
-      : `Cruza el Sol y sale por el otro lado; deposita la energía que el Sol emite en ${fmtDur(A.Ls)}.`)],
-    supernova: ['Supernova (hipotética)', '#ff6bd6', () => 'El Sol tiene muy poca masa para explotar así: solo las estrellas de más de ~8 M☉ terminan en supernova (el Sol acabará como enana blanca). Este escenario imagina que lo hiciera. Daño estimado suponiendo que cada cuerpo absorbe ~10 % de la energía que intercepta.'],
-    suntde: ['Disrupción del Sol', '#b388ff', () => 'El agujero negro es más masivo que el Sol y lo despedaza por marea. Los planetas pierden la gravedad y la luz de su estrella: quedan atrapados por el agujero negro o salen despedidos.'],
-    local: ['Cráter local', '#7fc8ff', (A) => `Cráter de ~${fmtLen(A.crater * 1e3)}; efectos limitados a la zona del impacto.`],
-    regional: ['Devastación regional', '#ffd166', (A) => `Cráter de ~${fmtLen(A.crater * 1e3)}; terremotos, incendios y lluvia de eyecta en cientos de kilómetros.`],
-    extinction: ['Extinción masiva', '#ff9f43', (A) => `Cráter de ~${fmtLen(A.crater * 1e3)}. El polvo y el hollín bloquean la luz solar durante años: invierno de impacto.`],
-    sterilize: ['Esterilización global', '#ff6b4a', () => 'La energía vaporiza los océanos y funde la corteza: la superficie queda inhabitable durante siglos.'],
-    magma: ['Océano de magma + disco de escombros', '#ff4d6d', () => 'Toda la superficie se funde; parte del material queda en órbita y puede formar un anillo o una nueva luna.'],
-    partial: ['Disrupción parcial', '#e04cff', () => 'El planeta pierde una fracción importante de su masa; el resto queda fundido y rodeado de escombros.'],
-    destroy: ['Destrucción total', '#ff2e63', () => 'La energía supera la energía de ligadura gravitatoria: el planeta se desintegra en un enjambre de fragmentos.'],
-    airburst: ['Explosión aérea', '#9be37a', (A) => `El objeto se desintegra en la atmósfera; la onda expansiva arrasa un radio de ~${fmtNum(A.blastR, 0)} km.`],
-    gasscar: ['Impacto atmosférico', '#9be37a', (A) => `Explota en las nubes y deja una mancha oscura de ~${fmtNum(A.scarKm, 0)} km que los vientos dispersan en semanas (como Shoemaker-Levy 9).`],
-    gasglobal: ['Calentamiento atmosférico global', '#ff6b4a', () => 'La energía calienta toda la atmósfera superior; el planeta brilla en infrarrojo durante años.'],
-    tde: ['Disrupción por marea', '#b388ff', () => 'La gravedad diferencial del agujero negro despedaza el planeta: parte de la materia forma un disco de acreción y el resto escapa.'],
+    solar: [L('Impact on the Sun', 'Impacto contra el Sol'), '#ffd166', (A) => L(
+      `${A.comet ? 'A sungrazing comet usually evaporates before touching the photosphere. ' : ''}It releases the energy the Sun emits in ${fmtDur(A.Ls)}: a flash, a sunquake and a rain of plasma. For the Sun it is ${A.Ls < DAY_S ? 'barely a blink' : 'a passing increase in brightness'}.`,
+      `${A.comet ? 'Un cometa rozador suele evaporarse antes de tocar la fotosfera. ' : ''}Libera la energía que el Sol emite en ${fmtDur(A.Ls)}: un destello, un terremoto solar y una lluvia de plasma. Para el Sol es ${A.Ls < DAY_S ? 'apenas un parpadeo' : 'un aumento de brillo pasajero'}.`)],
+    solarpass: [L('Passes through the Sun', 'Atraviesa el Sol'), '#ffd166', (A) => (A.captured
+      ? L(`Dynamical friction slows it down so much that it gets trapped inside the Sun: it will sink to the core and devour it from within in ~${sci(A.eatYears)} years.`,
+        `La fricción dinámica lo frena tanto que queda atrapado dentro del Sol: se hundirá al núcleo y lo devorará desde dentro en ~${sci(A.eatYears)} años.`)
+      : L(`It crosses the Sun and comes out the other side; it deposits the energy the Sun emits in ${fmtDur(A.Ls)}.`,
+        `Cruza el Sol y sale por el otro lado; deposita la energía que el Sol emite en ${fmtDur(A.Ls)}.`))],
+    supernova: [L('Supernova (hypothetical)', 'Supernova (hipotética)'), '#ff6bd6', () => L(
+      'The Sun has far too little mass to explode like this: only stars above ~8 M☉ end as supernovae (the Sun will end as a white dwarf). This scenario imagines that it did. Damage is estimated assuming each body absorbs ~10% of the energy it intercepts.',
+      'El Sol tiene muy poca masa para explotar así: solo las estrellas de más de ~8 M☉ terminan en supernova (el Sol acabará como enana blanca). Este escenario imagina que lo hiciera. Daño estimado suponiendo que cada cuerpo absorbe ~10 % de la energía que intercepta.')],
+    suntde: [L('Disruption of the Sun', 'Disrupción del Sol'), '#b388ff', () => L(
+      'The black hole is more massive than the Sun and tears it apart by tidal forces. The planets lose their star’s gravity and light: they are captured by the black hole or flung away.',
+      'El agujero negro es más masivo que el Sol y lo despedaza por marea. Los planetas pierden la gravedad y la luz de su estrella: quedan atrapados por el agujero negro o salen despedidos.')],
+    local: [L('Local crater', 'Cráter local'), '#7fc8ff', (A) => L(
+      `A crater of ~${fmtLen(A.crater * 1e3)}; effects limited to the impact area.`,
+      `Cráter de ~${fmtLen(A.crater * 1e3)}; efectos limitados a la zona del impacto.`)],
+    regional: [L('Regional devastation', 'Devastación regional'), '#ffd166', (A) => L(
+      `A crater of ~${fmtLen(A.crater * 1e3)}; earthquakes, fires and falling ejecta across hundreds of kilometers.`,
+      `Cráter de ~${fmtLen(A.crater * 1e3)}; terremotos, incendios y lluvia de eyecta en cientos de kilómetros.`)],
+    extinction: [L('Mass extinction', 'Extinción masiva'), '#ff9f43', (A) => L(
+      `A crater of ~${fmtLen(A.crater * 1e3)}. Dust and soot block sunlight for years: an impact winter.`,
+      `Cráter de ~${fmtLen(A.crater * 1e3)}. El polvo y el hollín bloquean la luz solar durante años: invierno de impacto.`)],
+    sterilize: [L('Global sterilization', 'Esterilización global'), '#ff6b4a', () => L(
+      'The energy vaporizes the oceans and melts the crust: the surface is left uninhabitable for centuries.',
+      'La energía vaporiza los océanos y funde la corteza: la superficie queda inhabitable durante siglos.')],
+    magma: [L('Magma ocean + debris disk', 'Océano de magma + disco de escombros'), '#ff4d6d', () => L(
+      'The whole surface melts; part of the material stays in orbit and can form a ring or a new moon.',
+      'Toda la superficie se funde; parte del material queda en órbita y puede formar un anillo o una nueva luna.')],
+    partial: [L('Partial disruption', 'Disrupción parcial'), '#e04cff', () => L(
+      'The planet loses a large fraction of its mass; the rest is left molten and surrounded by debris.',
+      'El planeta pierde una fracción importante de su masa; el resto queda fundido y rodeado de escombros.')],
+    destroy: [L('Total destruction', 'Destrucción total'), '#ff2e63', () => L(
+      'The energy exceeds the gravitational binding energy: the planet breaks up into a swarm of fragments.',
+      'La energía supera la energía de ligadura gravitatoria: el planeta se desintegra en un enjambre de fragmentos.')],
+    airburst: [L('Air burst', 'Explosión aérea'), '#9be37a', (A) => L(
+      `The object breaks up in the atmosphere; the blast wave flattens a radius of ~${fmtNum(A.blastR, 0)} km.`,
+      `El objeto se desintegra en la atmósfera; la onda expansiva arrasa un radio de ~${fmtNum(A.blastR, 0)} km.`)],
+    gasscar: [L('Atmospheric impact', 'Impacto atmosférico'), '#9be37a', (A) => L(
+      `It explodes in the clouds and leaves a dark spot of ~${fmtNum(A.scarKm, 0)} km that the winds spread out within weeks (like Shoemaker-Levy 9).`,
+      `Explota en las nubes y deja una mancha oscura de ~${fmtNum(A.scarKm, 0)} km que los vientos dispersan en semanas (como Shoemaker-Levy 9).`)],
+    gasglobal: [L('Global atmospheric heating', 'Calentamiento atmosférico global'), '#ff6b4a', () => L(
+      'The energy heats the whole upper atmosphere; the planet glows in the infrared for years.',
+      'La energía calienta toda la atmósfera superior; el planeta brilla en infrarrojo durante años.')],
+    tde: [L('Tidal disruption', 'Disrupción por marea'), '#b388ff', () => L(
+      'The black hole’s differential gravity tears the planet apart: part of the matter forms an accretion disk and the rest escapes.',
+      'La gravedad diferencial del agujero negro despedaza el planeta: parte de la materia forma un disco de acreción y el resto escapa.')],
   };
 
   /* ------------------------------ Estado ------------------------------- */
@@ -490,15 +527,20 @@ const Impacts = (() => {
         for (let i = 0; i < n; i++) if (st[i] === 4) bound++;
         const pct = Math.round((100 * bound) / n);
         if (bound > n * 0.03) {
-          addLog(`🌀 El ${pct} % de los restos queda ligado al agujero negro; el resto escapa en una corriente de escombros`);
-          schedule(15, 'Las colisiones convierten los restos ligados en un disco de acreción caliente que brilla en rayos X');
-          schedule(YEAR, 'El disco de acreción se va consumiendo: la materia cae al agujero negro');
+          addLog(L(`🌀 ${pct}% of the debris stays bound to the black hole; the rest escapes in a stream of debris`,
+            `🌀 El ${pct} % de los restos queda ligado al agujero negro; el resto escapa en una corriente de escombros`));
+          schedule(15, L('Collisions turn the bound debris into a hot accretion disk that glows in X-rays',
+            'Las colisiones convierten los restos ligados en un disco de acreción caliente que brilla en rayos X'));
+          schedule(YEAR, L('The accretion disk is slowly consumed: the matter falls into the black hole',
+            'El disco de acreción se va consumiendo: la materia cae al agujero negro'));
         } else {
-          addLog('🌀 La velocidad relativa era demasiado alta: casi todos los restos escapan y no se forma un disco de acreción');
+          addLog(L('🌀 The relative speed was too high: almost all the debris escapes and no accretion disk forms',
+            '🌀 La velocidad relativa era demasiado alta: casi todos los restos escapan y no se forma un disco de acreción'));
         }
       }
       if (this.kind === 'impact' && this.ringCount > 25) {
-        schedule(12, `💫 Los escombros dentro del límite de Roche forman un anillo alrededor de ${c.name}`);
+        schedule(12, L(`💫 The debris inside the Roche limit forms a ring around ${nm(c)}`,
+          `💫 Los escombros dentro del límite de Roche forman un anillo alrededor de ${nm(c)}`));
       }
       if (this.kind === 'destroy' && swarm / this.n > 0.03) scheduleRemnant(c, swarm / this.n, 62);
     }
@@ -627,7 +669,7 @@ const Impacts = (() => {
     beltState.on = true;
     sim.nbody = true;
     $('today').disabled = true;
-    $('today').title = 'No disponible mientras la simulación está perturbada';
+    $('today').title = L('Not available while the simulation is perturbed', 'No disponible mientras la simulación está perturbada');
     updateOsc();
   }
 
@@ -824,14 +866,17 @@ const Impacts = (() => {
         const Eb = 0.5 * (dvx * dvx + dvy * dvy + dvz * dvz) - bh.mu / d;
         if (Eb < 0 && bh.mu / d > muS / r && !b.capLogged) {
           b.capLogged = true;
-          addLog(`🕳 ${b.name} queda atrapado en órbita alrededor del agujero negro`);
+          addLog(L(`🕳 ${Nm(b)} is captured into orbit around the black hole`,
+            `🕳 ${Nm(b)} queda atrapado en órbita alrededor del agujero negro`));
         }
       }
       if (E > 0 && r > 1.5 && !b.escLogged && !b.capLogged) {
         b.escLogged = true;
         addLog(SUN.destroyed && !(state.sn && state.sn.rem > 0)
-          ? `🚀 ${b.name} ya no está ligado a nada: vagará por la galaxia`
-          : `🚀 ${b.name} supera la velocidad de escape: abandonará el sistema solar`);
+          ? L(`🚀 ${Nm(b)} is no longer bound to anything: it will wander through the galaxy`,
+            `🚀 ${Nm(b)} ya no está ligado a nada: vagará por la galaxia`)
+          : L(`🚀 ${Nm(b)} exceeds escape velocity: it will leave the Solar System`,
+            `🚀 ${Nm(b)} supera la velocidad de escape: abandonará el sistema solar`));
       }
     }
   }
@@ -1175,52 +1220,55 @@ const Impacts = (() => {
 
   // Línea de tiempo narrada para cada tipo de resultado.
   function narrate(b, cat, extra = {}) {
-    const N = b.name;
+    const N = nm(b), Nc = Nm(b);
     const ev = {
-      regional: [[0.02, `La lluvia de eyecta cae a cientos de kilómetros del cráter en ${N}`], [1, 'Terremotos e incendios en la región; el polvo se dispersa']],
+      regional: [
+        [0.02, L(`Ejecta rains down hundreds of kilometers from the crater on ${N}`, `La lluvia de eyecta cae a cientos de kilómetros del cráter en ${N}`)],
+        [1, L('Earthquakes and fires across the region; the dust spreads out', 'Terremotos e incendios en la región; el polvo se dispersa')],
+      ],
       extinction: [
-        [0.02, 'La eyecta incandescente reingresa por todo el planeta: incendios globales'],
-        [2, 'El polvo y el hollín cubren el cielo: comienza el invierno de impacto'],
-        [120, 'La fotosíntesis se detiene; colapsan las cadenas alimenticias'],
-        [YEAR * 4, 'El polvo se asienta y la luz del Sol vuelve poco a poco'],
+        [0.02, L('Incandescent ejecta re-enters all over the planet: global wildfires', 'La eyecta incandescente reingresa por todo el planeta: incendios globales')],
+        [2, L('Dust and soot cover the sky: the impact winter begins', 'El polvo y el hollín cubren el cielo: comienza el invierno de impacto')],
+        [120, L('Photosynthesis stops; food chains collapse', 'La fotosíntesis se detiene; colapsan las cadenas alimenticias')],
+        [YEAR * 4, L('The dust settles and sunlight slowly returns', 'El polvo se asienta y la luz del Sol vuelve poco a poco')],
       ],
       sterilize: [
-        [0.03, 'Una nube de roca vaporizada envuelve todo el planeta'],
-        [1, 'La atmósfera alcanza miles de grados: los océanos comienzan a hervir'],
-        [60, 'La superficie queda completamente esterilizada'],
-        [YEAR * 60, `La corteza de ${N} vuelve a solidificarse`],
+        [0.03, L('A cloud of vaporized rock wraps the whole planet', 'Una nube de roca vaporizada envuelve todo el planeta')],
+        [1, L('The atmosphere reaches thousands of degrees: the oceans begin to boil', 'La atmósfera alcanza miles de grados: los océanos comienzan a hervir')],
+        [60, L('The surface is completely sterilized', 'La superficie queda completamente esterilizada')],
+        [YEAR * 60, L(`The crust of ${N} solidifies again`, `La corteza de ${N} vuelve a solidificarse`)],
       ],
       magma: [
-        [0.02, 'La onda de choque recorre el planeta y funde la corteza'],
-        [1, `Un océano de magma cubre toda la superficie de ${N}`],
-        [8, 'Las colisiones aplanan los escombros en órbita en un disco'],
-        [YEAR * 300, `Se forma una nueva corteza sólida sobre ${N}`],
+        [0.02, L('The shock wave sweeps through the planet and melts the crust', 'La onda de choque recorre el planeta y funde la corteza')],
+        [1, L(`A magma ocean covers the entire surface of ${N}`, `Un océano de magma cubre toda la superficie de ${N}`)],
+        [8, L('Collisions flatten the orbiting debris into a disk', 'Las colisiones aplanan los escombros en órbita en un disco')],
+        [YEAR * 300, L(`A new solid crust forms on ${N}`, `Se forma una nueva corteza sólida sobre ${N}`)],
       ],
       partial: [
-        [0.02, `${N} pierde una parte importante de su manto`],
-        [1, 'Lo que queda del planeta es una bola de roca fundida'],
-        [8, 'Los escombros ligados forman un disco alrededor del planeta'],
+        [0.02, L(`${Nc} loses a large part of its mantle`, `${Nc} pierde una parte importante de su manto`)],
+        [1, L('What is left of the planet is a ball of molten rock', 'Lo que queda del planeta es una bola de roca fundida')],
+        [8, L('The bound debris forms a disk around the planet', 'Los escombros ligados forman un disco alrededor del planeta')],
       ],
       gasscar: [
-        [0.5, `Aparece una mancha oscura en las nubes de ${N}`],
-        [30, 'Los vientos estiran y dispersan la mancha'],
-        [200, 'La mancha desaparece por completo'],
+        [0.5, L(`A dark spot appears in the clouds of ${N}`, `Aparece una mancha oscura en las nubes de ${N}`)],
+        [30, L('The winds stretch and spread out the spot', 'Los vientos estiran y dispersan la mancha')],
+        [200, L('The spot disappears completely', 'La mancha desaparece por completo')],
       ],
       gasglobal: [
-        [1, 'La atmósfera superior se calienta: el planeta brilla en infrarrojo'],
-        [YEAR * 10, 'La atmósfera recupera su temperatura habitual'],
+        [1, L('The upper atmosphere heats up: the planet glows in the infrared', 'La atmósfera superior se calienta: el planeta brilla en infrarrojo')],
+        [YEAR * 10, L('The atmosphere returns to its usual temperature', 'La atmósfera recupera su temperatura habitual')],
       ],
-      airburst: [[0.01, 'La onda expansiva recorre la región y derriba todo a su paso']],
+      airburst: [[0.01, L('The blast wave sweeps across the region and flattens everything in its path', 'La onda expansiva recorre la región y derriba todo a su paso')]],
       solar: [
-        [0.008, 'Una onda sísmica recorre la fotosfera: un "terremoto solar" como los que observan las sondas'],
-        [0.04, 'El plasma eyectado vuelve a caer siguiendo el campo magnético: lluvia coronal'],
-        [1.5, 'El Sol recupera su brillo habitual'],
+        [0.008, L('A seismic wave sweeps across the photosphere: a "sunquake" like those seen by space probes', 'Una onda sísmica recorre la fotosfera: un "terremoto solar" como los que observan las sondas')],
+        [0.04, L('The ejected plasma falls back along the magnetic field: coronal rain', 'El plasma eyectado vuelve a caer siguiendo el campo magnético: lluvia coronal')],
+        [1.5, L('The Sun returns to its usual brightness', 'El Sol recupera su brillo habitual')],
       ],
       destroy: [
-        [0.05, 'Los fragmentos se alejan a más que la velocidad de escape'],
-        [10, `La nube de escombros se estira a lo largo de la órbita de ${N}`],
-        [extra.period || YEAR, 'Tras una vuelta al Sol, los restos forman un arco de escombros'],
-        [(extra.period || YEAR) * 6, `Se ha formado un nuevo cinturón de escombros donde estaba ${N}`],
+        [0.05, L('The fragments fly apart faster than escape velocity', 'Los fragmentos se alejan a más que la velocidad de escape')],
+        [10, L(`The debris cloud stretches out along the orbit of ${N}`, `La nube de escombros se estira a lo largo de la órbita de ${N}`)],
+        [extra.period || YEAR, L('After one trip around the Sun, the remains form an arc of debris', 'Tras una vuelta al Sol, los restos forman un arco de escombros')],
+        [(extra.period || YEAR) * 6, L(`A new debris belt has formed where ${N} used to be`, `Se ha formado un nuevo cinturón de escombros donde estaba ${N}`)],
       ],
     }[cat];
     for (const [dt, text] of ev || []) schedule(dt, text);
@@ -1261,7 +1309,8 @@ const Impacts = (() => {
       fx.craters = [];
       fx.heat = { H0: 1, t0: sim.days, tau: YEAR * 300 };
       makeLava(fx);
-      addLog(`🪨 Los fragmentos que quedaron ligados se reagrupan: nace un cuerpo de escombros fundido con ~${fmtNum(frac * 100, 0)} % de la masa de ${b.name}`);
+      addLog(L(`🪨 The fragments that stayed bound clump back together: a molten rubble body is born with ~${fmtNum(frac * 100, 0)}% of the mass of ${nm(b)}`,
+        `🪨 Los fragmentos que quedaron ligados se reagrupan: nace un cuerpo de escombros fundido con ~${fmtNum(frac * 100, 0)} % de la masa de ${nm(b)}`));
       refreshTargets();
     });
   }
@@ -1273,20 +1322,24 @@ const Impacts = (() => {
       const dKm = p.radius * 3.6;
       const period = (TAU * Math.sqrt(dKm ** 3 / (G_KM * p.mass))) / DAY_S;
       const m = {
-        name: `Nueva luna de ${p.name}`, parent: p.name, parentBody: p, type: 'moon', generated: true,
+        key: `nueva-luna-${p.key}`, name: L(`New moon of ${p.name}`, `Nueva luna de ${p.name}`),
+        parent: p.key, parentBody: p, type: 'moon', generated: true,
         r: 0.05, r0: p.r * 0.3, dist: p.r * 3.6, period, phase0: rnd() * TAU, color: ['#e6d9c6', '#6c5d4e'], realKm: dKm,
         mass: p.mass * 0.012, radius: p.radius * 0.27, x: p.x, y: p.y, z: p.z,
-        desc: 'Luna formada por acreción de los escombros que el impacto puso en órbita, como se cree que nació nuestra Luna.',
-        facts: [['Orbita a', p.name], ['Distancia', `${fmtNum(dKm, 0)} km`], ['Periodo orbital', `${fmtNum(period * 24, 1)} horas`]],
+        desc: L('A moon formed by accretion of the debris the impact put into orbit, as our Moon is thought to have formed.',
+          'Luna formada por acreción de los escombros que el impacto puso en órbita, como se cree que nació nuestra Luna.'),
+        facts: [[L('Orbits', 'Orbita a'), p.name], [L('Distance', 'Distancia'), `${fmtNum(dKm, 0)} km`],
+          [L('Orbital period', 'Periodo orbital'), `${fmtNum(period * 24, 1)} ${L('hours', 'horas')}`]],
       };
       MOONS.push(m); BODIES.push(m);
       state.generated.push(m);
       sys.moon = m;
-      addLog(`🌑 Los escombros fuera del límite de Roche se aglutinan: nace una nueva luna alrededor de ${p.name}`);
+      addLog(L(`🌑 The debris outside the Roche limit clumps together: a new moon is born around ${nm(p)}`,
+        `🌑 Los escombros fuera del límite de Roche se aglutinan: nace una nueva luna alrededor de ${nm(p)}`));
     }
     sys.moonAcc++;
     sys.moon.r = Math.max(0.05, p.r * 0.3 * Math.cbrt(sys.moonAcc / Math.max(1, sys.moonTotal)));
-    if (sys.moonAcc === sys.moonTotal) addLog(`🌕 La nueva luna de ${p.name} termina de formarse`);
+    if (sys.moonAcc === sys.moonTotal) addLog(L(`🌕 The new moon of ${nm(p)} finishes forming`, `🌕 La nueva luna de ${nm(p)} termina de formarse`));
   }
 
   // Las lunas de un planeta destruido quedan en órbita alrededor del Sol.
@@ -1295,8 +1348,8 @@ const Impacts = (() => {
       if (m.parentBody !== b || m.free || m.destroyed) continue;
       freeMoon(m);
       addLog(SUN.destroyed
-        ? `🌑 ${m.name} pierde a su planeta y queda vagando sin rumbo`
-        : `🌑 ${m.name} pierde a su planeta y queda en órbita alrededor del Sol`);
+        ? L(`🌑 ${Nm(m)} loses its planet and drifts away aimlessly`, `🌑 ${Nm(m)} pierde a su planeta y queda vagando sin rumbo`)
+        : L(`🌑 ${Nm(m)} loses its planet and ends up orbiting the Sun`, `🌑 ${Nm(m)} pierde a su planeta y queda en órbita alrededor del Sol`));
     }
   }
 
@@ -1358,7 +1411,8 @@ const Impacts = (() => {
       state.projectiles.push(pr);
     }
     const sizeTxt = fmtLen(P.L);
-    addLog(`🚀 ${ty.name} de ${sizeTxt}${frags > 1 ? ` (${frags} fragmentos)` : ''} en ruta hacia ${nm(t)} a ${fmtNum(P.v, 1)} km/s`);
+    addLog(L(`🚀 A ${sizeTxt} ${ty.name.toLowerCase()}${frags > 1 ? ` (${frags} fragments)` : ''} is on its way to ${nm(t)} at ${fmtNum(P.v, 1)} km/s`,
+      `🚀 ${ty.name} de ${sizeTxt}${frags > 1 ? ` (${frags} fragmentos)` : ''} en ruta hacia ${nm(t)} a ${fmtNum(P.v, 1)} km/s`));
     refreshLabUI();
   }
 
@@ -1383,7 +1437,8 @@ const Impacts = (() => {
     holdSlow(0.012 + 0.03 * Math.min(1, sf));
     if (pr.idx === 0) {
       const [label] = CATS[cat];
-      addLog(`💥 Impacto en ${nm(b)}: ${sci(A.E)} J (${sci(A.E / MT)} Mt) — <b>${label}</b>`);
+      addLog(L(`💥 Impact on ${nm(b)}: ${sci(A.E)} J (${sci(A.E / MT)} Mt) — <b>${label}</b>`,
+        `💥 Impacto en ${nm(b)}: ${sci(A.E)} J (${sci(A.E / MT)} Mt) — <b>${label}</b>`));
       narrate(b, cat, { period: b.period || b.P });
     }
   }
@@ -1430,21 +1485,24 @@ const Impacts = (() => {
     const visR = clamp(0.4 + 0.25 * Math.log10(P.mass / 1e20), 0.3, 3.5);
     const rsTxt = fmtLen(A.rs);
     const bh = {
-      type: 'blackhole', name: 'Agujero negro', mass: P.mass, mu: (K2 * P.mass) / M_SUN, r: visR, r0: visR,
+      type: 'blackhole', key: 'blackhole', name: L('Black hole', 'Agujero negro'), mass: P.mass, mu: (K2 * P.mass) / M_SUN, r: visR, r0: visR,
       hp: v3(t.hp.x + from.x * vrel * T, t.hp.y + from.y * vrel * T, t.hp.z + from.z * vrel * T),
       hv: v3(t.hv.x - from.x * vrel, t.hv.y - from.y * vrel, t.hv.z - from.z * vrel),
       vrel, target: t, homing: t, inside: new Set(), trail: [], flare: 0, x: 0, y: 0, z: 0, live: true,
       // Estado de llegada (para conservar el momento si despedaza al Sol).
       dirIn: mul(from, -1), refV: { ...t.hv },
       color: ['#000', '#000'],
-      desc: 'Un agujero negro: su gravedad es tan intensa que ni la luz escapa de su horizonte de sucesos. (Tamaño dibujado exagerado.)',
-      facts: [['Masa', `${sci(P.mass)} kg`], ['Equivale a', massEquiv(P.mass)], ['Horizonte de sucesos', rsTxt], ['Velocidad relativa', `${fmtNum(P.v, 0)} km/s`]],
+      desc: L('A black hole: its gravity is so strong that not even light escapes from its event horizon. (Drawn size exaggerated.)',
+        'Un agujero negro: su gravedad es tan intensa que ni la luz escapa de su horizonte de sucesos. (Tamaño dibujado exagerado.)'),
+      facts: [[L('Mass', 'Masa'), `${sci(P.mass)} kg`], [L('Equivalent to', 'Equivale a'), massEquiv(P.mass)],
+        [L('Event horizon', 'Horizonte de sucesos'), rsTxt], [L('Relative speed', 'Velocidad relativa'), `${fmtNum(P.v, 0)} km/s`]],
     };
     mapVec(bh.hp.x, bh.hp.y, bh.hp.z, bh);
     HELIO.push(bh); BODIES.push(bh); state.bhs.push(bh);
     focusOn(t);
     cam.tdist = t.r * (A.tde ? 22 : 7);
-    addLog(`🕳 Un agujero negro de ${massEquiv(P.mass)} (horizonte: ${rsTxt}) se dirige a ${nm(t)} a ${fmtNum(P.v, 0)} km/s`);
+    addLog(L(`🕳 A black hole with ${massEquiv(P.mass)} (horizon: ${rsTxt}) is heading for ${nm(t)} at ${fmtNum(P.v, 0)} km/s`,
+      `🕳 Un agujero negro de ${massEquiv(P.mass)} (horizonte: ${rsTxt}) se dirige a ${nm(t)} a ${fmtNum(P.v, 0)} km/s`));
     refreshLabUI();
   }
 
@@ -1507,16 +1565,21 @@ const Impacts = (() => {
       sunMu = 0;
       bh.mass += 0.5 * M_SUN;
       bh.mu += 0.5 * K2;
-      addLog(`☀ Disrupción por marea del Sol: cruza el radio de marea (${fmtNum(rt, 0)} km) y es despedazado — <b>${CATS.suntde[0]}</b>`);
+      addLog(L(`☀ Tidal disruption of the Sun: it crosses the tidal radius (${fmtNum(rt, 0)} km) and is torn apart — <b>${CATS.suntde[0]}</b>`,
+        `☀ Disrupción por marea del Sol: cruza el radio de marea (${fmtNum(rt, 0)} km) y es despedazado — <b>${CATS.suntde[0]}</b>`));
       const earth = PLANETS[2];
       if (!earth.destroyed) {
         const lightMin = (Math.hypot(earth.hp.x - p.hp.x, earth.hp.y - p.hp.y, earth.hp.z - p.hp.z) * AU_KM) / 299792.458 / 60;
-        schedule(lightMin / 1440, `🌍 ${fmtNum(lightMin, 1)} min después, la luz del desastre llega a la Tierra: el Sol ya no está`);
+        schedule(lightMin / 1440, L(`🌍 ${fmtNum(lightMin, 1)} min later, the light of the disaster reaches Earth: the Sun is gone`,
+          `🌍 ${fmtNum(lightMin, 1)} min después, la luz del desastre llega a la Tierra: el Sol ya no está`));
       }
-      schedule(1, 'Sin la gravedad del Sol, cada planeta sigue en línea recta a su velocidad orbital… salvo los que atrapa el agujero negro');
-      schedule(30, 'Los planetas sin estrella se enfrían rápidamente: los océanos de la Tierra se congelarían en pocos años');
+      schedule(1, L('Without the Sun’s gravity, each planet moves off in a straight line at its orbital speed… except those the black hole captures',
+        'Sin la gravedad del Sol, cada planeta sigue en línea recta a su velocidad orbital… salvo los que atrapa el agujero negro'));
+      schedule(30, L('Planets without a star cool down fast: Earth’s oceans would freeze within a few years',
+        'Los planetas sin estrella se enfrían rápidamente: los océanos de la Tierra se congelarían en pocos años'));
     } else {
-      addLog(`🕳 Disrupción por marea: ${p.name} cruza el radio de marea (${fmtNum(rt, 0)} km) y es despedazado — <b>${CATS.tde[0]}</b>`);
+      addLog(L(`🕳 Tidal disruption: ${nm(p)} crosses the tidal radius (${fmtNum(rt, 0)} km) and is torn apart — <b>${CATS.tde[0]}</b>`,
+        `🕳 Disrupción por marea: ${nm(p)} cruza el radio de marea (${fmtNum(rt, 0)} km) y es despedazado — <b>${CATS.tde[0]}</b>`));
     }
     refreshTargets();
   }
@@ -1533,9 +1596,9 @@ const Impacts = (() => {
     const captured = E > 0.5 * bh.mass * vinf2;
     const sf = solarSev(E);
     const nIn = norm(sub(bh.hp, p.hp)), vdir = norm(vr);
-    const L = Math.max(0.2, -2 * dot(nIn, vdir));
-    const nOut = norm(add(nIn, mul(vdir, L)));
-    const crossS = (L * p.radius) / vk;
+    const chord = Math.max(0.2, -2 * dot(nIn, vdir)); // largo del recorrido, en radios
+    const nOut = norm(add(nIn, mul(vdir, chord)));
+    const crossS = (chord * p.radius) / vk;
     const mk = (n) => ({ n, tdir: perpBasis(n)[0], angle: Math.PI / 2, sf, cat: 'solarpass', A: {}, q: 0 });
     applyImpact(p, mk(nIn));
     holdSlow(0.03);
@@ -1545,12 +1608,16 @@ const Impacts = (() => {
       sunMu += bh.mu;
       if (cam.follow === bh) focusOn(SUN);
       const years = 4.5e7 * Math.log(p.mass / bh.mass);
-      addLog(`🕳 El agujero negro entra al Sol y la fricción dinámica (${sci(E)} J) lo frena: <b>queda atrapado</b> y se hunde hacia el núcleo`);
-      schedule(1, 'El Sol sigue brillando como siempre: desde fuera nada parece haber cambiado');
-      schedule(30, `Con acreción limitada por Eddington, el agujero negro tardaría ~${sci(years)} años en devorar el Sol desde dentro`);
+      addLog(L(`🕳 The black hole enters the Sun and dynamical friction (${sci(E)} J) slows it down: <b>it is trapped</b> and sinks toward the core`,
+        `🕳 El agujero negro entra al Sol y la fricción dinámica (${sci(E)} J) lo frena: <b>queda atrapado</b> y se hunde hacia el núcleo`));
+      schedule(1, L('The Sun keeps shining as always: from outside nothing seems to have changed',
+        'El Sol sigue brillando como siempre: desde fuera nada parece haber cambiado'));
+      schedule(30, L(`With Eddington-limited accretion, the black hole would take ~${sci(years)} years to devour the Sun from within`,
+        `Con acreción limitada por Eddington, el agujero negro tardaría ~${sci(years)} años en devorar el Sol desde dentro`));
     } else {
       schedule(crossS / DAY_S, null, () => applyImpact(p, mk(nOut)));
-      addLog(`🕳 El agujero negro atraviesa el Sol en ${fmtDur(crossS)}: deposita ${sci(E)} J (lo que el Sol emite en ${fmtDur(E / L_SUN)}) y sale por el otro lado`);
+      addLog(L(`🕳 The black hole crosses the Sun in ${fmtDur(crossS)}: it deposits ${sci(E)} J (what the Sun emits in ${fmtDur(E / L_SUN)}) and comes out the other side`,
+        `🕳 El agujero negro atraviesa el Sol en ${fmtDur(crossS)}: deposita ${sci(E)} J (lo que el Sol emite en ${fmtDur(E / L_SUN)}) y sale por el otro lado`));
     }
   }
 
@@ -1567,10 +1634,10 @@ const Impacts = (() => {
     const racc = (2 * G * bh.mass) / (v * v);
     const acc = Math.PI * racc * racc * rho * 2 * R;
     const nIn = norm(sub(bh.hp, p.hp)), vdir = norm(vr);
-    const L = Math.max(0.2, -2 * dot(nIn, vdir));
-    const nOut = norm(add(nIn, mul(vdir, L)));
+    const chord = Math.max(0.2, -2 * dot(nIn, vdir)); // largo del recorrido, en radios
+    const nOut = norm(add(nIn, mul(vdir, chord)));
     const cat = categorize(q, p, false);
-    const crossS = (L * p.radius) / vk;
+    const crossS = (chord * p.radius) / vk;
     const craterAng = clamp(0.03 + 0.35 * sf, 0.03, 0.5);
     const A = { q, crater: 0, scarKm: p.radius * (0.05 + 0.3 * sf) };
     const mk = (n) => ({ n, tdir: perpBasis(n)[0], angle: Math.PI / 2, sf, cat, A, q, craterAng });
@@ -1580,7 +1647,8 @@ const Impacts = (() => {
       schedule(crossS / DAY_S, null, () => { if (!p.destroyed) applyImpact(p, mk(nOut)); });
     }
     holdSlow(0.04);
-    addLog(`🕳 El agujero negro atraviesa ${p.name} en ${fmtDur(crossS)}: deposita ${sci(E)} J por fricción dinámica y traga ~${sci(acc)} kg — <b>${CATS[cat][0]}</b>`);
+    addLog(L(`🕳 The black hole passes through ${nm(p)} in ${fmtDur(crossS)}: it deposits ${sci(E)} J by dynamical friction and swallows ~${sci(acc)} kg — <b>${CATS[cat][0]}</b>`,
+      `🕳 El agujero negro atraviesa ${nm(p)} en ${fmtDur(crossS)}: deposita ${sci(E)} J por fricción dinámica y traga ~${sci(acc)} kg — <b>${CATS[cat][0]}</b>`));
     narrate(p, cat, { period: p.period || p.P });
   }
 
@@ -1725,7 +1793,8 @@ const Impacts = (() => {
     state.anchor = sim.days;
     resetView();
     cam.tdist = 750;
-    addLog('☀ El núcleo del Sol colapsa en una fracción de segundo… <b>Supernova (hipotética)</b>');
+    addLog(L('☀ The Sun’s core collapses in a fraction of a second… <b>Supernova (hypothetical)</b>',
+      '☀ El núcleo del Sol colapsa en una fracción de segundo… <b>Supernova (hipotética)</b>'));
     refreshLabUI();
   }
 
@@ -1738,18 +1807,25 @@ const Impacts = (() => {
     SUN.destroyed = true;
     SUN.r = SUN.r0;
     state.anchor = sim.days;
-    addLog(`💥 Explosión: ${sci(sn.E)} J; el ${fmtNum(sn.fej * 100, 0)} % de la masa del Sol sale despedido a ~${fmtNum(sn.vrms, 0)} km/s`);
-    addLog('Un pulso de ~10⁴⁶ J en neutrinos escapa del núcleo: incluso ellos, que casi nunca interactúan, darían una dosis letal a 1 UA');
+    addLog(L(`💥 Explosion: ${sci(sn.E)} J; ${fmtNum(sn.fej * 100, 0)}% of the Sun’s mass is blasted out at ~${fmtNum(sn.vrms, 0)} km/s`,
+      `💥 Explosión: ${sci(sn.E)} J; el ${fmtNum(sn.fej * 100, 0)} % de la masa del Sol sale despedido a ~${fmtNum(sn.vrms, 0)} km/s`));
+    addLog(L('A ~10⁴⁶ J pulse of neutrinos escapes from the core: even they, which almost never interact, would give a lethal dose at 1 AU',
+      'Un pulso de ~10⁴⁶ J en neutrinos escapa del núcleo: incluso ellos, que casi nunca interactúan, darían una dosis letal a 1 UA'));
     const earth = PLANETS[2];
     if (!earth.destroyed) {
       const r = dist3(earth.hp, sn.c0);
-      schedule((r * 499.005) / DAY_S, `🌍 La luz de la supernova llega a la Tierra, ${fmtNum(r * 8.317, 1)} minutos después de la explosión`);
+      schedule((r * 499.005) / DAY_S, L(`🌍 The light of the supernova reaches Earth, ${fmtNum(r * 8.317, 1)} minutes after the explosion`,
+        `🌍 La luz de la supernova llega a la Tierra, ${fmtNum(r * 8.317, 1)} minutos después de la explosión`));
     }
     schedule(0.01, sn.fej > 0.5
-      ? 'Al perder más de la mitad de su masa, el Sol ya no puede retener a los planetas: dejan de estar ligados a medida que pasa la onda'
-      : `Queda un remanente compacto con el ${fmtNum(sn.rem * 100, 0)} % de la masa: los planetas siguen ligados, pero en órbitas más alargadas`);
-    schedule(18, `La supernova alcanza su brillo máximo: ~${sci(sn.Lpeak)} veces el Sol, comparable a una galaxia entera`);
-    schedule(YEAR, 'La nube en expansión se convierte en un remanente de supernova, como la Nebulosa del Cangrejo');
+      ? L('Having lost more than half of its mass, the Sun can no longer hold on to the planets: they become unbound as the wave passes',
+        'Al perder más de la mitad de su masa, el Sol ya no puede retener a los planetas: dejan de estar ligados a medida que pasa la onda')
+      : L(`A compact remnant with ${fmtNum(sn.rem * 100, 0)}% of the mass remains: the planets stay bound, but in more elongated orbits`,
+        `Queda un remanente compacto con el ${fmtNum(sn.rem * 100, 0)} % de la masa: los planetas siguen ligados, pero en órbitas más alargadas`));
+    schedule(18, L(`The supernova reaches peak brightness: ~${sci(sn.Lpeak)} times the Sun, comparable to an entire galaxy`,
+      `La supernova alcanza su brillo máximo: ~${sci(sn.Lpeak)} veces el Sol, comparable a una galaxia entera`));
+    schedule(YEAR, L('The expanding cloud becomes a supernova remnant, like the Crab Nebula',
+      'La nube en expansión se convierte en un remanente de supernova, como la Nebulosa del Cangrejo'));
   }
 
   // La onda de choque alcanza un cuerpo.
@@ -1761,7 +1837,7 @@ const Impacts = (() => {
     if (b.type === 'comet') {
       b.destroyed = true;
       flash(b, v3(), 0, 8, 0.02);
-      if (sn.comets++ === 0) addLog('☄ Los cometas se vaporizan al instante cuando los alcanza la onda');
+      if (sn.comets++ === 0) addLog(L('☄ The comets vaporize instantly when the wave reaches them', '☄ Los cometas se vaporizan al instante cuando los alcanza la onda'));
       return;
     }
     const { Edep, q, dv } = snFate(b, sn.E, sn.fej, r);
@@ -1777,14 +1853,16 @@ const Impacts = (() => {
     let label;
     if (q >= 1) {
       destroyPlanet(b, { q, dirOut: n });
-      label = '<b>se desintegra</b>';
+      label = L('<b>breaks up</b>', '<b>se desintegra</b>');
     } else if (b.kind === 'gas') {
       const fx = fxOf(b), t = sim.days;
       flash(b, n, 0.01, 0.5 + 1.5 * sf, 0.01 + 0.02 * sf);
       fx.shocks.push({ n, t0: t, maxAng: 3, dur: 0.02 + 0.05 * sf });
       fx.heat = { H0: clamp((sf - 0.3) / 0.4, 0.15, 1), t0: t, tau: YEAR * 15 };
       makeLava(fx);
-      label = q >= 1e-4 ? 'pierde buena parte de su atmósfera y queda incandescente' : 'su atmósfera se calienta y brilla en infrarrojo';
+      label = q >= 1e-4
+        ? L('loses much of its atmosphere and is left glowing hot', 'pierde buena parte de su atmósfera y queda incandescente')
+        : L('its atmosphere heats up and glows in the infrared', 'su atmósfera se calienta y brilla en infrarrojo');
     } else {
       const cat = categorize(q, b, false);
       applyImpact(b, {
@@ -1793,7 +1871,9 @@ const Impacts = (() => {
       });
       label = CATS[cat][0].toLowerCase();
     }
-    addLog(`💥 La onda alcanza ${nm(b)}: ${label} (recibe ${sci(Edep)} J y un empujón de ${dv < 1000 ? `${fmtNum(dv, 0)} m/s` : `${fmtNum(dv / 1000, 1)} km/s`})`);
+    const push = dv < 1000 ? `${fmtNum(dv, 0)} m/s` : `${fmtNum(dv / 1000, 1)} km/s`;
+    addLog(L(`💥 The wave reaches ${nm(b)}: ${label} (it receives ${sci(Edep)} J and a push of ${push})`,
+      `💥 La onda alcanza ${nm(b)}: ${label} (recibe ${sci(Edep)} J y un empujón de ${push})`));
   }
 
   function snUpdate() {
@@ -1892,8 +1972,8 @@ const Impacts = (() => {
     const a = TRACK[k - 1], b = TRACK[k];
     const f = clamp((t - a[0]) / (b[0] - a[0]), 0, 1);
     const lg = (x, y) => Math.exp(Math.log(x) + (Math.log(y) - Math.log(x)) * f);
-    const R = lg(a[1], b[1]), L = lg(a[2], b[2]), M = a[3] + (b[3] - a[3]) * f;
-    return { R, L, M, T: 5772 * Math.pow(L / (R * R), 0.25) };
+    const R = lg(a[1], b[1]), lum = lg(a[2], b[2]), M = a[3] + (b[3] - a[3]) * f;
+    return { R, L: lum, M, T: 5772 * Math.pow(lum / (R * R), 0.25) };
   }
 
   function evoTime(real) {
@@ -1906,9 +1986,10 @@ const Impacts = (() => {
   }
 
   function phaseName(t) {
-    return t < 5.4 ? 'secuencia principal' : t < 7.0 ? 'subgigante' : t < 7.59 ? 'gigante roja'
-      : t < 7.592 ? 'destello de helio' : t < 7.70 ? 'rama horizontal' : t < 7.735 ? 'rama asintótica'
-      : t < 7.7352 ? 'nebulosa planetaria' : 'enana blanca';
+    return t < 5.4 ? L('main sequence', 'secuencia principal') : t < 7.0 ? L('subgiant', 'subgigante')
+      : t < 7.59 ? L('red giant', 'gigante roja') : t < 7.592 ? L('helium flash', 'destello de helio')
+      : t < 7.70 ? L('horizontal branch', 'rama horizontal') : t < 7.735 ? L('asymptotic giant branch', 'rama asintótica')
+      : t < 7.7352 ? L('planetary nebula', 'nebulosa planetaria') : L('white dwarf', 'enana blanca');
   }
 
   // Radio dibujado: se empalma con la escala de distancias para que el engullimiento se vea coherente.
@@ -1928,16 +2009,26 @@ const Impacts = (() => {
   const evoLog = (text) => addLog(text, sim.days, fmtGa(state.evo.t));
 
   const EVO_EVENTS = [
-    [1.0, '🌡 El Sol brilla un 10 % más: la Tierra entra en un efecto invernadero desbocado y sus océanos se evaporan'],
-    [3.5, '🏜 Con un 40 % más de brillo, la Tierra es un desierto abrasador parecido a Venus'],
-    [5.4, '☀ Se agota el hidrógeno del núcleo: el Sol deja la secuencia principal y se convierte en subgigante'],
-    [7.0, '🔴 Rama de las gigantes rojas: el Sol se hincha y enrojece; un viento intenso le hace perder masa y las órbitas se alejan'],
-    [7.59, '🔴 Punta de la rama gigante: ~256 veces su radio actual (1,2 UA) y ~2.700 veces más brillante; ha perdido un tercio de su masa'],
-    [7.5905, '⚡ Destello de helio: el helio del núcleo se enciende en minutos; el Sol se encoge a unos 10 radios (rama horizontal)'],
-    [7.70, '🔴 Rama asintótica: el Sol vuelve a hincharse, ahora con pulsos térmicos'],
-    [7.735, '🌫 Expulsa sus capas externas: nace una nebulosa planetaria (su expansión se acelera para poder verla)'],
-    [7.7352, '⚪ Queda el núcleo desnudo: una enana blanca de 0,54 M☉ del tamaño de la Tierra, a más de 100.000 °C'],
-    [8.0, '❄ La enana blanca ya no produce energía: solo se enfría, durante billones de años'],
+    [1.0, L('🌡 The Sun shines 10% brighter: Earth enters a runaway greenhouse effect and its oceans evaporate',
+      '🌡 El Sol brilla un 10 % más: la Tierra entra en un efecto invernadero desbocado y sus océanos se evaporan')],
+    [3.5, L('🏜 At 40% brighter, Earth is a scorching desert similar to Venus',
+      '🏜 Con un 40 % más de brillo, la Tierra es un desierto abrasador parecido a Venus')],
+    [5.4, L('☀ The core runs out of hydrogen: the Sun leaves the main sequence and becomes a subgiant',
+      '☀ Se agota el hidrógeno del núcleo: el Sol deja la secuencia principal y se convierte en subgigante')],
+    [7.0, L('🔴 Red giant branch: the Sun swells and reddens; a strong wind makes it lose mass and the orbits move outward',
+      '🔴 Rama de las gigantes rojas: el Sol se hincha y enrojece; un viento intenso le hace perder masa y las órbitas se alejan')],
+    [7.59, L('🔴 Tip of the red giant branch: ~256 times its current radius (1.2 AU) and ~2,700 times brighter; it has lost a third of its mass',
+      '🔴 Punta de la rama gigante: ~256 veces su radio actual (1,2 UA) y ~2.700 veces más brillante; ha perdido un tercio de su masa')],
+    [7.5905, L('⚡ Helium flash: the helium in the core ignites within minutes; the Sun shrinks to about 10 radii (horizontal branch)',
+      '⚡ Destello de helio: el helio del núcleo se enciende en minutos; el Sol se encoge a unos 10 radios (rama horizontal)')],
+    [7.70, L('🔴 Asymptotic giant branch: the Sun swells again, now with thermal pulses',
+      '🔴 Rama asintótica: el Sol vuelve a hincharse, ahora con pulsos térmicos')],
+    [7.735, L('🌫 It sheds its outer layers: a planetary nebula is born (its expansion is sped up so you can see it)',
+      '🌫 Expulsa sus capas externas: nace una nebulosa planetaria (su expansión se acelera para poder verla)')],
+    [7.7352, L('⚪ The bare core is left: a 0.54 M☉ white dwarf the size of Earth, at more than 100,000 °C',
+      '⚪ Queda el núcleo desnudo: una enana blanca de 0,54 M☉ del tamaño de la Tierra, a más de 100.000 °C')],
+    [8.0, L('❄ The white dwarf no longer produces energy: it just cools down, for trillions of years',
+      '❄ La enana blanca ya no produce energía: solo se enfría, durante billones de años')],
   ];
 
   function launchEvo() {
@@ -1957,7 +2048,8 @@ const Impacts = (() => {
     resetView();
     cam.tdist = 1150;
     cam.pitch = 0.55;
-    evoLog('🌅 Evolución del Sol desde hoy (edad: 4.570 millones de años). Ga = miles de millones de años');
+    evoLog(L('🌅 The Sun’s evolution from today (age: 4,570 million years). Ga = billions of years',
+      '🌅 Evolución del Sol desde hoy (edad: 4.570 millones de años). Ga = miles de millones de años'));
     refreshLabUI();
   }
 
@@ -1971,7 +2063,8 @@ const Impacts = (() => {
         evo.finished = true;
         evo.t = 20;
         const alive = PLANETS.filter((p) => !p.destroyed).map((p) => p.name);
-        evoLog(`🌑 Tras 20.000 millones de años la enana blanca es tenue y fría. Siguen orbitando en la oscuridad: ${alive.join(', ')}`);
+        evoLog(L(`🌑 After 20 billion years the white dwarf is faint and cold. Still orbiting in the dark: ${alive.join(', ')}`,
+          `🌑 Tras 20.000 millones de años la enana blanca es tenue y fría. Siguen orbitando en la oscuridad: ${alive.join(', ')}`));
       }
     } else evo.t = t;
     const s = trackAt(evo.t);
@@ -1994,9 +2087,10 @@ const Impacts = (() => {
         p.destroyed = true;
         for (const m of MOONS) if (m.parentBody === p) m.destroyed = true;
         flash(p, v3(), 0, 3, 0.02);
-        evoLog(p.name === 'Tierra'
-          ? '🔥 La Tierra (con la Luna) es engullida por la envoltura del Sol y se vaporiza'
-          : `🔥 ${p.name} es engullido por la envoltura del Sol y se vaporiza`);
+        evoLog(p.key === 'Tierra'
+          ? L('🔥 Earth (along with the Moon) is swallowed by the Sun’s envelope and vaporizes',
+            '🔥 La Tierra (con la Luna) es engullida por la envoltura del Sol y se vaporiza')
+          : L(`🔥 ${Nm(p)} is swallowed by the Sun’s envelope and vaporizes`, `🔥 ${Nm(p)} es engullido por la envoltura del Sol y se vaporiza`));
         continue;
       }
       // Superficie fundida si la temperatura de equilibrio supera ~1.300 K.
@@ -2006,18 +2100,23 @@ const Impacts = (() => {
         fx.heatFixed = H;
         if (H > 0) {
           makeLava(fx);
-          if (!evo.fired.has('melt' + p.name)) { evo.fired.add('melt' + p.name); evoLog(`🌋 La superficie de ${p.name === 'Tierra' ? 'la Tierra' : p.name} se funde (~${fmtNum(Teq(p.a), 0)} K)`); }
+          if (!evo.fired.has('melt' + p.key)) {
+            evo.fired.add('melt' + p.key);
+            evoLog(L(`🌋 The surface of ${nm(p)} melts (~${fmtNum(Teq(p.a), 0)} K)`, `🌋 La superficie de ${nm(p)} se funde (~${fmtNum(Teq(p.a), 0)} K)`));
+          }
         }
       }
     }
     const jup = PLANETS[4], sat = PLANETS[5];
     if (!evo.fired.has('europa') && Teq(jup.a) > 273) {
       evo.fired.add('europa');
-      evoLog('💧 El hielo de Europa y Ganímedes se derrite: océanos en la superficie de las lunas de Júpiter');
+      evoLog(L('💧 The ice of Europa and Ganymede melts: oceans on the surface of Jupiter’s moons',
+        '💧 El hielo de Europa y Ganímedes se derrite: océanos en la superficie de las lunas de Júpiter'));
     }
     if (!evo.fired.has('titan') && Teq(sat.a) > 260) {
       evo.fired.add('titan');
-      evoLog('🌍 Titán alcanza temperaturas templadas: podría ser habitable durante algunos cientos de millones de años');
+      evoLog(L('🌍 Titan reaches mild temperatures: it could be habitable for a few hundred million years',
+        '🌍 Titán alcanza temperaturas templadas: podría ser habitable durante algunos cientos de millones de años'));
     }
   }
 
@@ -2046,8 +2145,8 @@ const Impacts = (() => {
     if (!evo) return null;
     const age = (SUN_AGE + evo.t) * 1000;
     return {
-      date: `Edad del Sol: ${fmtNum(age, 0)} millones de años`,
-      speed: `Evolución estelar · ${phaseName(evo.t)}${sim.paused ? ' (en pausa)' : ''}`,
+      date: L(`Sun’s age: ${fmtNum(age, 0)} million years`, `Edad del Sol: ${fmtNum(age, 0)} millones de años`),
+      speed: `${L('Stellar evolution', 'Evolución estelar')} · ${phaseName(evo.t)}${sim.paused ? L(' (paused)', ' (en pausa)') : ''}`,
     };
   }
 
@@ -2183,7 +2282,7 @@ const Impacts = (() => {
 
   function readParams() {
     const type = ui.type, ty = TYPES[type];
-    const target = TARGETS.find((b) => b.name === el.target.value);
+    const target = TARGETS.find((b) => b.key === el.target.value);
     const sv = +el.size.value / 1000, vv = +el.speed.value / 1000;
     const P = { type, target, angle: +el.angle.value, frags: type === 'bh' || type === 'sn' ? 1 : +el.frags.value };
     if (type === 'evo') { P.target = SUN; return P; }
@@ -2210,8 +2309,8 @@ const Impacts = (() => {
     ui.type = type;
     for (const b of el.seg.querySelectorAll('button')) b.classList.toggle('active', b.dataset.type === type);
     const bh = type === 'bh', sn = type === 'sn', evo = type === 'evo';
-    el.sizeLabel.textContent = sn ? 'Energía de la explosión' : bh ? 'Masa' : 'Diámetro';
-    el.speedLabel.textContent = sn ? 'Masa expulsada' : bh ? 'Velocidad relativa' : 'Velocidad de impacto';
+    el.sizeLabel.textContent = sn ? L('Explosion energy', 'Energía de la explosión') : bh ? L('Mass', 'Masa') : T('lab.size');
+    el.speedLabel.textContent = sn ? L('Ejected mass', 'Masa expulsada') : bh ? L('Relative speed', 'Velocidad relativa') : T('lab.speed');
     el.size.closest('.slider').hidden = evo;
     el.speed.closest('.slider').hidden = evo;
     el.angleRow.hidden = bh || sn || evo;
@@ -2223,7 +2322,7 @@ const Impacts = (() => {
   function applyPreset(p) {
     setType(p.type);
     el.target.value = p.target;
-    const ty = TYPES[p.type], target = TARGETS.find((b) => b.name === p.target);
+    const ty = TYPES[p.type], target = TARGETS.find((b) => b.key === p.target);
     if (p.type === 'evo') { renderEstimate(); return; }
     if (p.type === 'sn') {
       el.size.value = Math.round(1000 * invLogLerp(ty.energy[0], ty.energy[1], p.E));
@@ -2245,31 +2344,39 @@ const Impacts = (() => {
   }
 
   function renderEvoEstimate() {
-    const rows = [
+    const rows = L([
+      ['+1,000 Myr', 'Earth’s oceans evaporated'],
+      ['+5,400 Myr', 'Hydrogen runs out: subgiant'],
+      ['+7,590 Myr', 'Red giant: 256 R☉, 2,700 L☉'],
+      ['Then', 'Helium flash and asymptotic branch'],
+      ['+7,735 Myr', 'Planetary nebula'],
+      ['End', '0.54 M☉ white dwarf'],
+    ], [
       ['+1.000 M años', 'Océanos de la Tierra evaporados'],
       ['+5.400 M años', 'Fin del hidrógeno: subgigante'],
       ['+7.590 M años', 'Gigante roja: 256 R☉, 2.700 L☉'],
       ['Después', 'Destello de helio y rama asintótica'],
       ['+7.735 M años', 'Nebulosa planetaria'],
       ['Final', 'Enana blanca de 0,54 M☉'],
-    ];
+    ]);
     el.estimate.innerHTML = rows.map(([k, v]) => `<div class="row-kv"><span>${k}</span><span>${v}</span></div>`).join('')
-      + '<div class="verdict" style="background:#ffb54733;border:1px solid #ffb54799">El destino real del Sol'
-      + '<small>Animación de ~75 s con modelos de evolución estelar. Al perder masa, las órbitas se alejan; '
-      + 'aun así Mercurio, Venus y probablemente la Tierra son engullidos. Mientras corre, la fecha muestra la edad del Sol.</small></div>';
+      + `<div class="verdict" style="background:#ffb54733;border:1px solid #ffb54799">${L('The real fate of the Sun', 'El destino real del Sol')}`
+      + `<small>${L(
+        'A ~75 s animation based on stellar evolution models. As the Sun loses mass the orbits move outward; even so, Mercury, Venus and probably Earth are swallowed. While it runs, the date shows the Sun’s age.',
+        'Animación de ~75 s con modelos de evolución estelar. Al perder masa, las órbitas se alejan; aun así Mercurio, Venus y probablemente la Tierra son engullidos. Mientras corre, la fecha muestra la edad del Sol.')}</small></div>`;
   }
 
   function renderSNEstimate(P) {
     const A = analyzeSN(P);
     el.sizeOut.textContent = `${sci(P.E)} J`;
-    el.speedOut.textContent = `${fmtNum(P.fej * 100, 0)} % (${fmtNum(P.fej, 2)} M☉)`;
+    el.speedOut.textContent = `${fmtNum(P.fej * 100, 0)}${L('%', ' %')} (${fmtNum(P.fej, 2)} M☉)`;
     const tTo = (au) => fmtDur((au * AU_KM) / A.vmean);
     const rows = [
-      ['Velocidad de la eyecta', `~${fmtNum(A.vrms, 0)} km/s`],
-      ['Llega a la Tierra en', tTo(1)],
-      ['Llega a Neptuno en', tTo(30.07)],
-      ['Brillo máximo', `~${sci(A.Lpeak)} × el Sol`],
-      ['Órbitas', P.fej > 0.5 ? 'Dejan de estar ligadas' : 'Siguen ligadas (más alargadas)'],
+      [L('Ejecta speed', 'Velocidad de la eyecta'), `~${fmtNum(A.vrms, 0)} km/s`],
+      [L('Reaches Earth in', 'Llega a la Tierra en'), tTo(1)],
+      [L('Reaches Neptune in', 'Llega a Neptuno en'), tTo(30.07)],
+      [L('Peak brightness', 'Brillo máximo'), `~${sci(A.Lpeak)} × ${L('the Sun', 'el Sol')}`],
+      [L('Orbits', 'Órbitas'), P.fej > 0.5 ? L('Become unbound', 'Dejan de estar ligadas') : L('Stay bound (more elongated)', 'Siguen ligadas (más alargadas)')],
     ];
     const destroyed = A.fates.filter((f) => f.q >= 1).map((f) => f.b.name);
     const melted = A.fates.filter((f) => f.q < 1 && f.q >= 1e-3).map((f) => f.b.name);
@@ -2277,18 +2384,18 @@ const Impacts = (() => {
     const list = (t, arr) => (arr.length ? `<div><b>${t}:</b> ${arr.join(', ')}</div>` : '');
     const [label, color, desc] = CATS.supernova;
     el.estimate.innerHTML = rows.map(([k, v]) => `<div class="row-kv"><span>${k}</span><span>${v}</span></div>`).join('')
-      + `<div class="fates">${list('Se desintegran', destroyed)}${list('Fundidos o sin atmósfera', melted)}${list('Daño menor', mild)}</div>`
+      + `<div class="fates">${list(L('Break up', 'Se desintegran'), destroyed)}${list(L('Molten or stripped of atmosphere', 'Fundidos o sin atmósfera'), melted)}${list(L('Minor damage', 'Daño menor'), mild)}</div>`
       + `<div class="verdict" style="background:${color}33;border:1px solid ${color}99">${label}<small>${desc(A)}</small></div>`;
   }
 
   function refreshTargets() {
     const cur = el.target.value;
     el.target.innerHTML = '';
-    for (const [label, list] of [['Estrella', [SUN]], ['Planetas', PLANETS], ['Planetas enanos', DWARFS]]) {
+    for (const [label, list] of [[L('Star', 'Estrella'), [SUN]], [L('Planets', 'Planetas'), PLANETS], [L('Dwarf planets', 'Planetas enanos'), DWARFS]]) {
       const g = document.createElement('optgroup');
       g.label = label;
       for (const b of list) {
-        const o = new Option(b.destroyed ? `${b.name} (destruido)` : b.name, b.name);
+        const o = new Option(b.destroyed ? `${b.name} (${L('destroyed', 'destruido')})` : b.name, b.key);
         o.disabled = !!b.destroyed;
         g.appendChild(o);
       }
@@ -2311,18 +2418,27 @@ const Impacts = (() => {
     el.fragsOut.textContent = String(P.frags);
     const rows = [];
     if (bh) {
-      rows.push(['Equivale a', massEquiv(P.mass)], ['Horizonte de sucesos', fmtLen(A.rs)], ['Radio de marea', `${fmtNum(A.rt, 0)} km`]);
-      if (!A.tde) rows.push(['Energía depositada', `${sci(A.E)} J`], ['Materia tragada', `~${sci(A.accreted)} kg`], ['Energía / ligadura', sci(A.q)]);
-      if (A.cat === 'solarpass') rows.push(['Brillo solar equivalente', fmtDur(A.Ls)], ['¿Queda atrapado?', A.captured ? 'Sí' : 'No']);
+      rows.push([L('Equivalent to', 'Equivale a'), massEquiv(P.mass)], [L('Event horizon', 'Horizonte de sucesos'), fmtLen(A.rs)],
+        [L('Tidal radius', 'Radio de marea'), `${fmtNum(A.rt, 0)} km`]);
+      if (!A.tde) {
+        rows.push([L('Energy deposited', 'Energía depositada'), `${sci(A.E)} J`], [L('Matter swallowed', 'Materia tragada'), `~${sci(A.accreted)} kg`],
+          [L('Energy / binding', 'Energía / ligadura'), sci(A.q)]);
+      }
+      if (A.cat === 'solarpass') {
+        rows.push([L('Equivalent solar output', 'Brillo solar equivalente'), fmtDur(A.Ls)],
+          [L('Gets trapped?', '¿Queda atrapado?'), A.captured ? L('Yes', 'Sí') : 'No']);
+      }
     } else {
-      rows.push(['Masa', `${sci(A.mass)} kg`], ['Energía', `${sci(A.E)} J`], ['Equivalente', equiv(A.E)]);
-      if (['local', 'regional', 'extinction'].includes(A.cat)) rows.push(['Cráter', `~${fmtLen(A.crater * 1e3)}`]);
-      if (A.cat === 'solar') rows.push(['Brillo solar equivalente', fmtDur(A.Ls)]);
-      rows.push(['Energía / ligadura', sci(A.qf)]);
+      rows.push([L('Mass', 'Masa'), `${sci(A.mass)} kg`], [L('Energy', 'Energía'), `${sci(A.E)} J`], [L('Equivalent', 'Equivalente'), equiv(A.E)]);
+      if (['local', 'regional', 'extinction'].includes(A.cat)) rows.push([L('Crater', 'Cráter'), `~${fmtLen(A.crater * 1e3)}`]);
+      if (A.cat === 'solar') rows.push([L('Equivalent solar output', 'Brillo solar equivalente'), fmtDur(A.Ls)]);
+      rows.push([L('Energy / binding', 'Energía / ligadura'), sci(A.qf)]);
     }
     const [label, color, desc] = CATS[A.cat];
     let text = desc(A);
-    if (A.bhPass && P.target.type !== 'sun') text = `Atraviesa el planeta (menos masivo que él). ${text}`;
+    if (A.bhPass && P.target.type !== 'sun') {
+      text = L(`It passes through the planet (it is less massive than it). ${text}`, `Atraviesa el planeta (menos masivo que él). ${text}`);
+    }
     el.estimate.innerHTML = rows.map(([k, v]) => `<div class="row-kv"><span>${k}</span><span>${v}</span></div>`).join('')
       + `<div class="verdict" style="background:${color}33;border:1px solid ${color}99">${label}<small>${text}</small></div>`;
   }
@@ -2332,8 +2448,8 @@ const Impacts = (() => {
     const busy = isBusy();
     const evo = P.type === 'evo';
     el.launch.disabled = busy || !P.target || (!evo && !!P.target.destroyed);
-    el.launch.textContent = state.evo && !state.evo.finished ? '⏳ Evolución en curso…'
-      : busy ? '⏳ Impacto en curso…' : evo ? '▶ Ver evolución' : '🚀 Lanzar';
+    el.launch.textContent = state.evo && !state.evo.finished ? L('⏳ Evolution running…', '⏳ Evolución en curso…')
+      : busy ? L('⏳ Impact in progress…', '⏳ Impacto en curso…') : evo ? L('▶ Watch the evolution', '▶ Ver evolución') : T('lab.launch');
   }
 
   for (const p of PRESETS) el.preset.appendChild(new Option(p.name, p.name));

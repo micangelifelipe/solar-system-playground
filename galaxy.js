@@ -52,10 +52,10 @@ const Galaxy = (() => {
   // y Sagitario-Carina (adentro), como en la Vía Láctea real.
   const PHI0 = -Math.log(1.18) / TANP;
   const ARMS = [
-    { name: 'Brazo de Perseo', phi: PHI0 },
-    { name: 'Brazo de Sagitario-Carina', phi: PHI0 + Math.PI / 2 },
-    { name: 'Brazo de Escudo-Centauro', phi: PHI0 + Math.PI },
-    { name: 'Brazo de Norma', phi: PHI0 + 1.5 * Math.PI },
+    { name: L('Perseus Arm', 'Brazo de Perseo'), phi: PHI0 },
+    { name: L('Sagittarius–Carina Arm', 'Brazo de Sagitario-Carina'), phi: PHI0 + Math.PI / 2 },
+    { name: L('Scutum–Centaurus Arm', 'Brazo de Escudo-Centauro'), phi: PHI0 + Math.PI },
+    { name: L('Norma Arm', 'Brazo de Norma'), phi: PHI0 + 1.5 * Math.PI },
   ];
   const R0LY = R0 / LY;
   const armTheta = (arm, r) => arm.phi + Math.log(r / R0LY) / TANP;
@@ -105,8 +105,8 @@ const Galaxy = (() => {
   // Etiquetas: posición en años luz (galactocéntrica) y texto.
   const polarPos = (r, th) => ({ u: r * Math.cos(th), v: r * Math.sin(th) });
   const LABELS = [
-    { ...polarPos(0, 0), text: 'Centro galáctico · Sagitario A*' },
-    { ...polarPos(R0LY * 1.03, 0.32), text: 'Brazo de Orión (local)' },
+    { ...polarPos(0, 0), text: L('Galactic center · Sagittarius A*', 'Centro galáctico · Sagitario A*') },
+    { ...polarPos(R0LY * 1.03, 0.32), text: L('Orion Arm (local)', 'Brazo de Orión (local)') },
     ...ARMS.map((arm) => {
       // Un punto del brazo a ~-1,1 rad, a un radio visible.
       let th = -1.1, r = R0LY * Math.exp((th - arm.phi) * TANP);
@@ -122,13 +122,18 @@ const Galaxy = (() => {
   }));
 
   const MILKY_WAY = {
-    name: 'Vía Láctea',
-    desc: 'Nuestra galaxia: una espiral barrada vista aquí a escala real en años luz. A esta escala todo el sistema solar es un punto.',
-    facts: [
+    name: L('Milky Way', 'Vía Láctea'),
+    desc: L('Our galaxy: a barred spiral shown here to true scale in light-years. At this scale the whole Solar System is a single point.',
+      'Nuestra galaxia: una espiral barrada vista aquí a escala real en años luz. A esta escala todo el sistema solar es un punto.'),
+    facts: L([
+      ['Diameter', '~100,000 light-years'], ['Stars', '100 – 400 billion'],
+      ['Sun – center distance', '~26,000 light-years'], ['Sun’s orbit (galactic year)', '~230 million years'],
+      ['Sun’s speed', '~230 km/s'], ['Central black hole', 'Sagittarius A* (~4 million M☉)'],
+    ], [
       ['Diámetro', '~100.000 años luz'], ['Estrellas', '100.000 – 400.000 millones'],
       ['Distancia Sol – centro', '~26.000 años luz'], ['Vuelta del Sol (año galáctico)', '~230 millones de años'],
       ['Velocidad del Sol', '~230 km/s'], ['Agujero negro central', 'Sagitario A* (~4 millones de M☉)'],
-    ],
+    ]),
   };
 
   /* ----------------------------- Cámara -------------------------------- */
@@ -170,7 +175,7 @@ const Galaxy = (() => {
     const far = cam.dist > 2e5;
     if (btn && btn.dataset.far !== String(far)) {
       btn.dataset.far = String(far);
-      btn.textContent = far ? '☀ Volver al Sistema Solar' : '🌌 Ver la Vía Láctea';
+      btn.textContent = far ? L('☀ Back to the Solar System', '☀ Volver al Sistema Solar') : T('galaxy.go');
     }
   }
 
@@ -234,23 +239,27 @@ const Galaxy = (() => {
     ctx.font = '12px Consolas, "Cascadia Mono", Menlo, "Courier New", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
+    // Mismo verde fluorescente que los nombres del sistema solar.
+    ctx.shadowColor = `rgba(${LABEL_GREEN},0.7)`;
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = `rgba(${LABEL_GREEN},0.9)`;
     for (const l of LABELS) {
       toView(l.x, l.y, l.z);
       if (V.z < NEAR) continue;
       const s = focal / V.z;
-      ctx.fillStyle = 'rgba(200,210,235,0.85)';
       ctx.fillText(l.text, cx + V.x * s, cy - V.y * s - 6);
     }
     // El Sistema Solar: marca destacada.
     toView(SUN.x, SUN.y, SUN.z);
     if (V.z > NEAR) {
       const s = focal / V.z, px = cx + V.x * s, py = cy - V.y * s;
-      ctx.strokeStyle = '#ffd28a';
+      ctx.strokeStyle = `rgb(${LABEL_GREEN})`;
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(px, py, 7, 0, TAU); ctx.stroke();
-      ctx.fillStyle = '#ffd28a';
+      ctx.fillStyle = `rgb(${LABEL_GREEN})`;
       ctx.beginPath(); ctx.arc(px, py, 2, 0, TAU); ctx.fill();
-      ctx.fillText('☀ Sistema Solar — estás aquí', px, py - 10);
+      ctx.font = 'bold 12px Consolas, "Cascadia Mono", Menlo, "Courier New", monospace';
+      ctx.fillText(L('☀ Solar System — you are here', '☀ Sistema Solar — estás aquí'), px, py - 10);
     }
     ctx.restore();
   }
